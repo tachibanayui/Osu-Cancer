@@ -52,6 +52,8 @@ namespace Osu_Cancer
             SongProgress = 50;
             PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\PlayTab.png";
             ExitTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\ExitTab.png";
+            EditTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\EditTab.png";
+            OptionTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\OptionTab.png";
         }
 
         private void GetAccountInformation()
@@ -85,6 +87,7 @@ namespace Osu_Cancer
             get { return playTab; }
             set
             {
+
                 if(playTab != value)
                 {
                     playTab = value;
@@ -102,6 +105,32 @@ namespace Osu_Cancer
                 {
                     exitTab = value;
                     NotifyPropertyChanged("ExitTab");
+                }
+            }
+        }
+        private string editTab;
+        public string EditTab
+        {
+            get { return editTab; }
+            set
+            {
+                if(editTab != value)
+                {
+                    editTab = value;
+                    NotifyPropertyChanged("EditTab");
+                }
+            }
+        }
+        private string optionTab;
+        public string OptionTab
+        {
+            get { return optionTab;}
+            set
+            {
+                if(optionTab != value)
+                {
+                    optionTab = value;
+                    NotifyPropertyChanged("OptionTab");
                 }
             }
         }
@@ -301,5 +330,15 @@ namespace Osu_Cancer
         PreLoad,
         FadeInPreLoad,
         MainScreen,
+    }
+    public class EndAnimationPos
+    {
+        public Thickness Activated;
+        public Thickness NonActivated;
+        public EndAnimationPos(Thickness activated, Thickness nonActivated)
+        {
+            Activated = activated;
+            NonActivated = nonActivated;
+        }
     }
 }

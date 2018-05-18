@@ -135,6 +135,11 @@ namespace Osu_Cancer
             AccountInfo.Visibility = Visibility.Visible;
             imgOsuLogo.Margin = new Thickness(130);
             defaultLogoMargin = imgOsuLogo.Margin;
+            //Add default margin to SelectionTab
+            imgPlayTab.Tag = new EndAnimationPos(new Thickness(450, 155, 210, 515), new Thickness(490, 155, 170, 515));
+            imgExitTab.Tag = new EndAnimationPos(new Thickness(450, 505, 210, 165), new Thickness(490, 505, 170, 165));
+            imgEditTab.Tag = new EndAnimationPos(new Thickness(430, 275, 130, 395), new Thickness(470, 275, 130, 395));
+            imgOptionTab.Tag = new EndAnimationPos(new Thickness(440, 385, 110, 285), new Thickness(470, 385, 130, 285));
         }
         private void HotkeyImplementing()
         {
@@ -186,7 +191,19 @@ namespace Osu_Cancer
             OverlayMessage.Visibility = Visibility.Collapsed;
             isMessageOverlayHideIntervalActive = false;
         }
-        
+        private void OpenSettingPanel()
+        {
+            if (workingResources.IsSettingPanelOpen)
+                return;
+            SettingPanelBackground.Visibility = Visibility.Visible;
+            SettingPanel.Visibility = Visibility.Visible;
+            SettingPanelBackground.BeginAnimation(WidthProperty, null);
+            SettingPanel.BeginAnimation(OpacityProperty, null);
+            SettingPanel.Opacity = 1;
+            DoubleAnimation slideInAnimation = new DoubleAnimation(0, 500, TimeSpan.FromSeconds(0.25), FillBehavior.HoldEnd);
+            SettingPanelBackground.BeginAnimation(WidthProperty, slideInAnimation);
+            workingResources.IsSettingPanelOpen = true;
+        }
         #endregion
 
         #region EventHandler related to the debug tab
@@ -266,17 +283,8 @@ namespace Osu_Cancer
         #region Setting Related
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (workingResources.IsSettingPanelOpen)
-                return;
-            SettingPanelBackground.Visibility = Visibility.Visible;
-            SettingPanel.Visibility = Visibility.Visible;
-            SettingPanelBackground.BeginAnimation(WidthProperty, null);
-            SettingPanel.BeginAnimation(OpacityProperty, null);
-            SettingPanel.Opacity = 1;
-            DoubleAnimation slideInAnimation = new DoubleAnimation(0, 500, TimeSpan.FromSeconds(0.25), FillBehavior.HoldEnd);
-            SettingPanelBackground.BeginAnimation(WidthProperty, slideInAnimation);
-            workingResources.IsSettingPanelOpen = true;
-        }
+            OpenSettingPanel();
+        }   
         private void CommandBinding_Executed_1(object sender, ExecutedRoutedEventArgs e)
         {
             if (!workingResources.IsSettingPanelOpen)
@@ -467,7 +475,7 @@ namespace Osu_Cancer
 
         private void Grid_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (currentSection == OsuSection.PreLoad)
+            if (currentSection == OsuSection.PreLoad || workingResources.IsSettingPanelOpen)
                 return;
 
             if (isAwaitVolumeGaugeRunning)
@@ -531,37 +539,117 @@ namespace Osu_Cancer
 
         private void imgOsuLogo_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            imgPlayTab.Visibility = Visibility.Visible;
             Thickness slideVal = new Thickness(-105, 130, 400, 130);
-
-            ThicknessAnimation tabPlaySlide = new ThicknessAnimation(new Thickness(450, 155, 210, 515), TimeSpan.FromSeconds(0.5));
-            DoubleAnimation tabPlayFadeIn = new DoubleAnimation(1, TimeSpan.FromSeconds(0.5));
-
-            ThicknessAnimation tabExitSlide = new ThicknessAnimation(new Thickness(450, 505, 210, 165), TimeSpan.FromSeconds(0.35));
+            
             ThicknessAnimation slide = new ThicknessAnimation(slideVal, TimeSpan.FromSeconds(0.35));
-            imgPlayTab.BeginAnimation(MarginProperty, tabPlaySlide);
-            imgPlayTab.BeginAnimation(OpacityProperty, tabPlayFadeIn);
+            TabSlider();
+
             imgOsuLogo.BeginAnimation(MarginProperty, slide);
             defaultLogoMargin = slideVal;
+        }
+
+        private void TabSlider()
+        {
+            imgPlayTab.Visibility = Visibility.Visible;
+            imgExitTab.Visibility = Visibility.Visible;
+            imgEditTab.Visibility = Visibility.Visible;
+            imgOptionTab.Visibility = Visibility.Visible;
+
+            ThicknessAnimation tabPlaySlide = new ThicknessAnimation(new Thickness(450, 155, 210, 515), TimeSpan.FromSeconds(0.5));
+            ThicknessAnimation tabExitSlide = new ThicknessAnimation(new Thickness(450, 505, 210, 165), TimeSpan.FromSeconds(0.5));
+            ThicknessAnimation tabEditSlide = new ThicknessAnimation(new Thickness(430, 275, 130, 395), TimeSpan.FromSeconds(0.5));
+            ThicknessAnimation tabOptionSlide = new ThicknessAnimation(new Thickness(440, 385, 110, 285), TimeSpan.FromSeconds(0.5));
+            DoubleAnimation tabFadeIn = new DoubleAnimation(1, TimeSpan.FromSeconds(0.5));
+
+            imgPlayTab.BeginAnimation(MarginProperty, tabPlaySlide);
+            imgPlayTab.BeginAnimation(OpacityProperty, tabFadeIn);
+            imgExitTab.BeginAnimation(MarginProperty, tabExitSlide);
+            imgExitTab.BeginAnimation(OpacityProperty, tabFadeIn);
+            imgEditTab.BeginAnimation(MarginProperty, tabEditSlide);
+            imgEditTab.BeginAnimation(OpacityProperty, tabFadeIn);
+            imgOptionTab.BeginAnimation(MarginProperty, tabOptionSlide);
+            imgOptionTab.BeginAnimation(OpacityProperty, tabFadeIn);
 
             imgPlayTab.MouseEnter += ImgPlayTab_MouseEnter;
             imgPlayTab.MouseLeave += ImgPlayTab_MouseLeave;
+            imgExitTab.MouseEnter += ImgPlayTab_MouseEnter;
+            imgExitTab.MouseLeave += ImgPlayTab_MouseLeave;
+            imgEditTab.MouseEnter += ImgPlayTab_MouseEnter;
+            imgEditTab.MouseLeave += ImgPlayTab_MouseLeave;
+            imgOptionTab.MouseEnter += ImgPlayTab_MouseEnter;
+            imgOptionTab.MouseLeave += ImgPlayTab_MouseLeave;
+
+            imgOptionTab.MouseDown += (object sender, MouseButtonEventArgs e) => { OpenSettingPanel(); };
+            imgExitTab.MouseDown += (object sender, MouseButtonEventArgs e) => 
+            {
+                media.Source = new Uri(workingResources.BaseDir + @"Resources\Default Audio\Goodbye.wav");
+                windowCurtain.Visibility = Visibility.Visible;
+                DoubleAnimation doubleAnimation = new DoubleAnimation(1, TimeSpan.FromSeconds(1.25));
+                doubleAnimation.Completed += (object sendeer, EventArgs ee) => { Environment.Exit(0); };
+                media.Play();
+                windowCurtain.BeginAnimation(OpacityProperty, doubleAnimation);
+            };
+            imgEditTab.MouseDown += (object sender, MouseButtonEventArgs e) => { ShowOverlayMessage("Not avaiable! Please try later version"); };
         }
 
         private void ImgPlayTab_MouseLeave(object sender, MouseEventArgs e)
         {
-            imgPlayTab.Margin = new Thickness(490, 155, 170, 515);
-            ThicknessAnimation animation = new ThicknessAnimation(new Thickness(450, 155, 210, 515), TimeSpan.FromSeconds(0.075));
-            animation.Completed += (object senderr, EventArgs ee) => { workingResources.PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\PlayTab.png"; };
-            imgPlayTab.BeginAnimation(MarginProperty, animation);
+            Image img = sender as Image;
+
+            img.BeginAnimation(MarginProperty, null);
+            img.Margin = ((EndAnimationPos)img.Tag).NonActivated;
+            ThicknessAnimation animation = new ThicknessAnimation(((EndAnimationPos)img.Tag).Activated, TimeSpan.FromSeconds(0.075));
+            animation.Completed += (object senderr, EventArgs ee) =>
+            {
+                ChangeTabImage(img, false);
+            };
+            img.BeginAnimation(MarginProperty, animation);
+        }
+
+        private void ChangeTabImage(Image img, bool isActivate)
+        {
+            switch (img.Name)
+            {
+                case "imgPlayTab":
+                    if(isActivate)
+                        workingResources.PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedPlayTab.png";
+                    else
+                        workingResources.PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\PlayTab.png";
+                    break;
+                case "imgExitTab":
+                    if (isActivate)
+                        workingResources.ExitTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedExitTab.png";
+                    else
+                        workingResources.ExitTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\ExitTab.png";
+                    break;
+                case "imgEditTab":
+                    if(isActivate)
+                        workingResources.EditTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedEditTab.png";
+                    else
+                        workingResources.EditTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\EditTab.png";
+                    break;
+                case "imgOptionTab":
+                    if(isActivate)
+                        workingResources.OptionTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedOptionTab.png";
+                    else
+                        workingResources.OptionTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\OptionTab.png";
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void ImgPlayTab_MouseEnter(object sender, MouseEventArgs e)
         {
-            imgPlayTab.Margin = new Thickness(450, 155, 210, 515);
-            workingResources.PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedPlayTab.png";
-            ThicknessAnimation animation = new ThicknessAnimation(new Thickness(490, 155, 170, 515), TimeSpan.FromSeconds(0.075));
-            imgPlayTab.BeginAnimation(MarginProperty, animation);
+            Image img = (Image)sender;
+            img.BeginAnimation(MarginProperty, null);
+
+            img.Margin = ((EndAnimationPos)img.Tag).Activated;
+
+            ChangeTabImage(img, true);
+            ThicknessAnimation animation = new ThicknessAnimation(((EndAnimationPos)img.Tag).NonActivated, TimeSpan.FromSeconds(0.075));
+            animation.Completed += (object a, EventArgs w) => { ChangeTabImage(img, true); };
+            img.BeginAnimation(MarginProperty, animation);
         }
     }
 }
