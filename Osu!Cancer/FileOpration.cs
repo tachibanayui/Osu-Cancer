@@ -25,7 +25,7 @@ namespace Osu_Cancer
         /// <returns></returns>
         public static string FileToString(string filePath, EncodingType type)
         {
-            byte[] buffer = FileToStream(filePath);
+            byte[] buffer = FileToByteArray(filePath);
 
             switch (type)
             {
@@ -39,7 +39,7 @@ namespace Osu_Cancer
             return Encoding.Default.GetString(buffer);
         }
 
-        private static byte[] FileToStream(string filePath)
+        private static byte[] FileToByteArray(string filePath)
         {
             try
             {
@@ -74,6 +74,12 @@ namespace Osu_Cancer
         public static string TrimPath(string path)
         {
             return path.Substring(path.LastIndexOf('\\') + 1);
+        }
+        public static void ByteArraytoFile(string dir, byte[] data, int count)
+        {
+            FileStream fs = new FileStream(dir, FileMode.Create);
+            fs.Write(data, 0, count);
+            fs.Close();
         }
 
         public static string GetSettingValueFromFile(string filePath, string settingName)

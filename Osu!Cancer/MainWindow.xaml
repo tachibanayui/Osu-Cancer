@@ -11,15 +11,306 @@
         AllowsTransparency="True"
         WindowStyle="None"
         Background="Transparent"
-        Title="MainWindow" Height="768" Width="1366" WindowStartupLocation="CenterScreen" WindowState="Maximized"
+        Title="MainWindow" Height="3152.5" Width="1366" WindowStartupLocation="CenterScreen" WindowState="Maximized"
         
         >
+    <Window.Resources>
+        <Style TargetType="GroupBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type GroupBox}">
+                        <Grid Background="{TemplateBinding Background}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="{Binding Path=Width, ElementName=cpHeader}"/>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="17"/>
+                                <ColumnDefinition Width="17"/>
+                                <ColumnDefinition x:Name="ContentHeader"/>
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Fill="#6FFFFFFF" HorizontalAlignment="Left" Height="{TemplateBinding ActualHeight}" Stroke="#6FFFFFFF" VerticalAlignment="Top" Grid.Column="1" Width="8" Grid.RowSpan="3" Grid.ColumnSpan="1"/>
+                            <ContentPresenter x:Name="cpHeader" Grid.Column="2" Content="{TemplateBinding Header}"/>
+                            <ContentPresenter Grid.Column="2" Content="{TemplateBinding Content}" Grid.Row="3"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ButtonOsu" TargetType="{x:Type Button}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="#126F8A" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="#2297B8">
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CustomListaBoxItem" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Padding" Value="4,1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" TargetName="Bd" Value="Black"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CustomListBoxSetting" TargetType="{x:Type ListBox}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBox}">
+                        <Border BorderBrush="Transparent" Background="Transparent" Padding="1" SnapsToDevicePixels="true">
+                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CustomSettingToggleButton" TargetType="ToggleButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{Binding FontSize, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="51*"/>
+                            </Grid.ColumnDefinitions>
+                            <Ellipse x:Name="Button" StrokeThickness="2" Stroke="#FFEA748B" Fill="Transparent" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}"/>
+                            <ContentPresenter Grid.Column="2"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Fill" TargetName="Button" Value="#FFEA748B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ContentSettingText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style x:Key="ComboBoxStyle1" TargetType="{x:Type ComboBox}">
+            <Setter Property="SnapsToDevicePixels" Value="true"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid>
+                            <ToggleButton Grid.Column="2" x:Name="ToggleButton" Focusable="false" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press" Background="Black" Opacity="1" BorderBrush="Black">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="20"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Rectangle Grid.ColumnSpan="2" HorizontalAlignment="Stretch" x:Name="Rectangle" VerticalAlignment="Stretch" Width="Auto" Height="Auto" RadiusX="3" RadiusY="3" Fill="Black" Stroke="Black" Opacity="0.75"/>
+                                            <Path Grid.Column="1" HorizontalAlignment="Center" x:Name="Arrow" VerticalAlignment="Center" Fill="White" Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 Z" Height="11.625" Margin="2.5,5.855,2.875,4.48" Stretch="Fill" Width="14.625"/>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="true">
+                                                <Setter Property="Fill" Value="#BA1177" TargetName="Rectangle"/>
+                                                <Setter Property="Opacity" Value="1" TargetName="Rectangle"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter HorizontalAlignment="Left" Margin="3,3,23,3" x:Name="ContentSite" VerticalAlignment="Center" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False"/>
+                            <TextBox Visibility="Collapsed" HorizontalAlignment="Left" Margin="3,3,23,3" x:Name="PART_EditableTextBox" Style="{x:Null}" VerticalAlignment="Center" Focusable="True" Background="Transparent" IsReadOnly="{TemplateBinding IsReadOnly}" BorderBrush="Transparent">
+                                <TextBox.Template>
+                                    <ControlTemplate TargetType="{x:Type TextBox}">
+                                        <!-- This must be named as PART_ContentHost -->
+                                        <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}"/>
+                                    </ControlTemplate>
+                                </TextBox.Template>
+                            </TextBox>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" x:Name="Popup" Focusable="False" AllowsTransparency="True" PopupAnimation="Slide">
+                                <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{TemplateBinding ActualWidth}" x:Name="DropDown" SnapsToDevicePixels="True">
+                                    <Border x:Name="DropDownBorder" Background="Black" BorderBrush="Black" BorderThickness="1"/>
+                                    <ScrollViewer Margin="4,6,4,6" Style="{DynamicResource SimpleScrollViewer}" SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="false">
+                                <Setter Property="MinHeight" Value="95" TargetName="DropDownBorder"/>
+                            </Trigger>
+                            <Trigger Property="IsGrouping" Value="true">
+                                <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                            </Trigger>
+                            <Trigger Property="AllowsTransparency" SourceName="Popup" Value="true">
+                                <Setter Property="CornerRadius" Value="4" TargetName="DropDownBorder"/>
+                                <Setter Property="Margin" Value="0,2,0,0" TargetName="DropDownBorder"/>
+                            </Trigger>
+                            <Trigger Property="IsEditable" Value="true">
+                                <Setter Property="IsTabStop" Value="false"/>
+                                <Setter Property="Visibility" Value="Visible" TargetName="PART_EditableTextBox"/>
+                                <Setter Property="Visibility" Value="Hidden" TargetName="ContentSite"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SettingSlider" TargetType="{x:Type Slider}">
+            <Setter Property="Background" Value="{DynamicResource LightBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource NormalBorderBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Slider}">
+                        <Grid x:Name="GridRoot">
+
+                            <Border Margin="0" x:Name="Border" Height="4" Background="Transparent"/>
+
+                            <Track x:Name="PART_Track">
+                                <Track.Thumb>
+                                    <Thumb Width="25" Height="25">
+                                        <Thumb.Template>
+                                            <ControlTemplate>
+                                                <Ellipse x:Name="Ellipse" Fill="Black" Stroke="#FFDB6D81" StrokeThickness="1"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate>
+                                                <Rectangle Fill="#FFDE7186" Margin="0,11,0,11" Opacity="0.5"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate>
+                                                <Rectangle Fill="#FFDE7186" Margin="0,11,0,11"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                            </Track>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="TickPlacement" Value="TopLeft"/>
+                            <Trigger Property="TickPlacement" Value="BottomRight"/>
+                            <Trigger Property="TickPlacement" Value="Both"/>
+                            <Trigger Property="Orientation" Value="Vertical">
+                                <Setter Property="LayoutTransform" TargetName="GridRoot">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="-90"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="PART_Track" Property="Orientation" Value="Horizontal"/>
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type ComboBoxItem}">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Padding" Value="4,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+            <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                        <Border x:Name="Bd" BorderBrush="Transparent" BorderThickness="{TemplateBinding BorderThickness}" Background="Transparent" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Path x:Name="Pointer" Data="M0,0 L0,10 L5,5 Z" Stroke="White" Fill="White" VerticalAlignment="Center" Visibility="Hidden"/>
+                                <ContentPresenter Grid.Column="1" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" TargetName="Bd" Value="#BA1177"/>
+                                <Setter Property="Visibility" TargetName="Pointer" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ToolTip">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <TextBlock Text="{TemplateBinding Content}" Foreground="White" Background="#FF0F0F0F" FontSize="12" Opacity="1"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:MainWindow.openSetting}" Executed="CommandBinding_Executed"/>
         <CommandBinding Command="{x:Static local:MainWindow.escPressed}" Executed="CommandBinding_Executed_1"/>
     </Window.CommandBindings>
     <Grid>
-        <Grid MouseMove="DynamicBGAction" MouseWheel="Grid_MouseWheel">
+        <Grid MouseMove="DynamicBGAction" MouseWheel="Grid_MouseWheel" Margin="0,6,0,-6">
             <MediaElement Visibility="Collapsed" x:Name="BGMPlayer" LoadedBehavior="Manual" MediaOpened="SongChange" Volume="{Binding BGMVolume}"/>
             <Grid x:Name="BlackCurtain" Opacity="0">
                 <Border  Background="Black"></Border>
@@ -30,6 +321,9 @@
             <Image x:Name="imgEditTab" Source="{Binding EditTab}" Margin="230,275,330,395" Opacity="0" Visibility="Collapsed"/>
             <Image x:Name="imgOptionTab" Source="{Binding OptionTab}" Margin="240,385,310,285" Opacity="0" Visibility="Collapsed"/>
             <Image x:Name="imgExitTab" Source="{Binding ExitTab}" Margin="250,505,410,165" Opacity="0" Visibility="Collapsed"/>
+            <Image x:Name="imgSoloTab" Source="{Binding SoloTab}" Margin="300,225,370,447" Opacity="0" Visibility="Collapsed"/>
+            <Image x:Name="imgMultiTab" Source="{Binding MultiTab}" Margin="300,335,360,335" Opacity="0" Visibility="Collapsed"/>
+            <Image x:Name="imgBackTab" Source="{Binding BackTab}" Margin="300,440,360,230" Opacity="0" Visibility="Collapsed"/>
             <Image x:Name="imgOsuLogo" Stretch="Uniform" Margin="205" Source="{Binding Logo}" MouseEnter="imgOsuLogo_MouseEnter" MouseLeave="imgOsuLogo_MouseLeave" MouseDown="imgOsuLogo_MouseDown">
                 <Image.Style>
                     <Style>
@@ -80,90 +374,15 @@
                                 <EventSetter Event="MouseEnter" Handler="ControlsButtonZoomIn"/>
                                 <EventSetter Event="MouseLeave" Handler="ControlsButtonZoomOut"/>
                             </Style>
-                            <Style TargetType="TextBlock" x:Key="Tooltip">
-                                <Setter Property="Foreground" Value="White"/>
-                                <Setter Property="Background" Value="#FF0F0F0F"/>
-                                <Setter Property="FontSize" Value="18"/>
-                                <Setter Property="Opacity" Value="1"/>
-                            </Style>
                         </Grid.Resources>
-                        <Image Source="{Binding Previous}" MouseDown="PreviousClick">
-                            <Image.ToolTip>
-                                <ToolTip>
-                                    <ToolTip.Template>
-                                        <ControlTemplate>
-                                            <TextBlock Text="Previous" Style="{StaticResource Tooltip}"></TextBlock>
-                                        </ControlTemplate>
-                                    </ToolTip.Template>
-                                </ToolTip>
-                            </Image.ToolTip>
-                        </Image>
-                        <Image Source="{Binding Play}" Grid.Column="1" MouseDown="PlayClick">
-                            <Image.ToolTip>
-                                <ToolTip>
-                                    <ToolTip.Template>
-                                        <ControlTemplate>
-                                            <TextBlock Text="Play" Style="{StaticResource Tooltip}"></TextBlock>
-                                        </ControlTemplate>
-                                    </ToolTip.Template>
-                                </ToolTip>
-                            </Image.ToolTip>
-                        </Image>
-                        <Image Source="{Binding Pause}" Grid.Column="2" MouseDown="PauseClick">
-                            <Image.ToolTip>
-                                <ToolTip>
-                                    <ToolTip.Template>
-                                        <ControlTemplate>
-                                            <TextBlock Text="Pause" Style="{StaticResource Tooltip}"></TextBlock>
-                                        </ControlTemplate>
-                                    </ToolTip.Template>
-                                </ToolTip>
-                            </Image.ToolTip>
-                        </Image>
-                        <Image Source="{Binding Stop}" Grid.Column="3" MouseDown="StopClick">
-                            <Image.ToolTip>
-                                <ToolTip>
-                                    <ToolTip.Template>
-                                        <ControlTemplate>
-                                            <TextBlock Text="Stop" Style="{StaticResource Tooltip}"></TextBlock>
-                                        </ControlTemplate>
-                                    </ToolTip.Template>
-                                </ToolTip>
-                            </Image.ToolTip>
-                        </Image>
-                        <Image Source="{Binding Next}" Grid.Column="4" MouseDown="NextClick">
-                            <Image.ToolTip>
-                                <ToolTip>
-                                    <ToolTip.Template>
-                                        <ControlTemplate>
-                                            <TextBlock Text="Next" Style="{StaticResource Tooltip}"></TextBlock>
-                                        </ControlTemplate>
-                                    </ToolTip.Template>
-                                </ToolTip>
-                            </Image.ToolTip>
-                        </Image>
-                        <Image Source="{Binding Information}" Grid.Column="5" MouseDown="ShowHideInfo">
-                            <Image.ToolTip>
-                                <ToolTip>
-                                    <ToolTip.Template>
-                                        <ControlTemplate>
-                                            <TextBlock Text="Information" Style="{StaticResource Tooltip}"></TextBlock>
-                                        </ControlTemplate>
-                                    </ToolTip.Template>
-                                </ToolTip>
-                            </Image.ToolTip>
-                        </Image>
-                        <Image Source="{Binding Window}" Grid.Column="6">
-                            <Image.ToolTip>
-                                <ToolTip>
-                                    <ToolTip.Template>
-                                        <ControlTemplate>
-                                            <TextBlock Text="Jump to Window" Style="{StaticResource Tooltip}"></TextBlock>
-                                        </ControlTemplate>
-                                    </ToolTip.Template>
-                                </ToolTip>
-                            </Image.ToolTip>
-                        </Image>
+                        <Image Source="{Binding Previous}" MouseDown="PreviousClick" ToolTip="Previous"/>
+                        <Image Source="{Binding Play}" Grid.Column="1" MouseDown="PlayClick" ToolTip="Play"/>
+                        <Image Source="{Binding Pause}" Grid.Column="2" MouseDown="PauseClick" ToolTip="Pause"/>
+                        <Image Source="{Binding Stop}" Grid.Column="3" MouseDown="StopClick" ToolTip="Stop"/>
+                        <Image Source="{Binding Next}" Grid.Column="4" MouseDown="NextClick" ToolTip="Next"/>
+                        <Image Source="{Binding Information}" Grid.Column="5" MouseDown="ShowHideInfo" ToolTip="Information"/>
+                        <Image Source="{Binding Window}" Grid.Column="6" ToolTip="Jump To Window"/>
+                        
                     </Grid>
                     <ProgressBar x:Name="pgbSong" Grid.Row="1" Margin="0,45,0,0" Width="300" HorizontalAlignment="Right" Value="{Binding SongProgress}" Maximum="300">
                         <ProgressBar.Template>
@@ -215,10 +434,19 @@
                 <Rectangle x:Name="AccountPanelOverlay" Fill="White" Grid.ColumnSpan="2" Opacity="0" ></Rectangle>
             </Grid>
             <!--Setting panel-->
-            <Grid x:Name="SettingPanel" Width="500" HorizontalAlignment="Left" Opacity="0" Visibility="Collapsed">
-                <Rectangle x:Name="SettingPanelBackground" HorizontalAlignment="Left" Fill="Black" Opacity="0.5" Width="500"></Rectangle>
-                <Rectangle Width="75" HorizontalAlignment="Left" Fill="Black"></Rectangle>
-                <Grid x:Name="grdSettingIcon" Margin="0, 75, 430, 75">
+            <Grid x:Name="SettingPanel" Width="500" HorizontalAlignment="Left" Opacity="1" Visibility="Visible">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="150"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                
+                <Rectangle x:Name="SettingPanelBackground" HorizontalAlignment="Left" Fill="Black" Opacity="0.5" Width="500" Grid.RowSpan="2" Grid.ColumnSpan="2"></Rectangle>
+                <Rectangle Width="75" HorizontalAlignment="Left" Fill="Black" Grid.RowSpan="2"/>
+                <Grid x:Name="grdSettingIcon" Margin="0, 75, 430, 75" Grid.RowSpan="2">
                     <Grid.RowDefinitions>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
@@ -230,9 +458,307 @@
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
-
                 </Grid>
+                <TextBlock Text="Options" Foreground="White" FontSize="36" TextAlignment="Center" Margin="100, 60, 100, 40" Grid.Column="1"/>
+                <TextBlock Text="Change the way osu! behaves" FontSize="24" TextAlignment="Center" Margin="50,100,50,0" Foreground="HotPink" Grid.Column="1"/>
+
+                <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
+                    <StackPanel Width="410">
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="White"/>
+                            </Style>
+                            <Style TargetType="TextBlock" x:Key="SettingHeader">
+                                <Setter Property="FontSize" Value="36"/>
+                                <Setter Property="VerticalAlignment" Value="Top"/>
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="Foreground" Value="#57C9EB"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Grid Height="500">
+                            <TextBlock Text="GENERAL" Style="{StaticResource SettingHeader}"/>
+                            <StackPanel Margin="0,50,0,0">
+                                <GroupBox Height="200" Header="CONNECT TO SERVER">
+                                    <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                        <ListBoxItem x:Name="listboxConnectToServerIP" Style="{StaticResource CustomListaBoxItem}">
+                                            <StackPanel Width="{Binding Path=ActualWidth, ElementName=listboxConnectToServerIP}">
+                                                <TextBlock Text="Enter Server Ip:" FontWeight="Normal" FontSize="18"/>
+                                                <TextBox x:Name="txbEndPoint" Background="Transparent" Foreground="White" FontSize="18"/>
+                                            </StackPanel>
+                                        </ListBoxItem>
+                                        <ListBoxItem x:Name="LxbItemSettingGeneralBtn" Height="75" Style="{StaticResource CustomListaBoxItem}">
+                                            <Button Content="Connect to server" Style="{StaticResource ButtonOsu}" Width="{Binding ElementName=listboxConnectToServerIP, Path=ActualWidth}" Click="btnConnectEP"/>
+                                        </ListBoxItem>
+                                    </ListBox>
+                                </GroupBox>
+                                <GroupBox Margin="0,50,0,0" Height="200" Header="SIGN IN">
+                                    <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                        <ListBoxItem x:Name="listBoxSettingGeneralSignInUsername" Height="50" Width="376" Style="{StaticResource CustomListaBoxItem}">
+                                            <StackPanel Width="{Binding ElementName=listBoxSettingGeneralSignInUsername, Path=ActualWidth}" Height="{Binding ElementName=listBoxSettingGeneralSignInUsername, Path=ActualHeight}">
+                                                <TextBlock Text="Username" FontSize="18"/>
+                                                <TextBox x:Name="txbUsername" Background="Transparent" FontSize="18" Height="20" Foreground="White"/>
+                                            </StackPanel>
+                                        </ListBoxItem>
+                                        <ListBoxItem x:Name="listBoxSettingGeneralSignInPassWord" Height="50" Width="376" Style="{StaticResource  CustomListaBoxItem}">
+                                            <StackPanel Width="{Binding ElementName=listBoxSettingGeneralSignInPassWord, Path=ActualWidth}" Height="{Binding ElementName=listBoxSettingGeneralSignInPassWord, Path=ActualHeight}">
+                                                <TextBlock Text="Password" FontSize="18"/>
+                                                <TextBox x:Name="txbPassword" Background="Transparent" FontSize="18" Height="20" Foreground="White"/>
+                                            </StackPanel>
+                                        </ListBoxItem>
+                                        <ListBoxItem x:Name="listBoxSettingGeneralSignInBtn" Width="376" Style="{StaticResource CustomListaBoxItem}">
+                                            <Button Content="SIGN IN" Style="{StaticResource ButtonOsu}" Width="{Binding ElementName=listBoxSettingGeneralSignInBtn, Path=ActualWidth}" Click="Button_Click"/>
+                                        </ListBoxItem>
+                                    </ListBox>
+                                </GroupBox>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Height="984">
+                            <TextBlock Text="GRAPHICS" Style="{StaticResource SettingHeader}"/>
+                            <GroupBox Margin="0,50,0,810" Header="LAYOUT">
+                                <ListBox x:Name="LayoutListBox" Style="{StaticResource CustomListBoxSetting}">
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Resolution:" Style="{StaticResource ContentSettingText}"/>
+                                            <ComboBox x:Name="CbxResolution" Style="{StaticResource ComboBoxStyle1}" Width="265"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Full Screen" FontWeight="Normal" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </GroupBox>
+                            <GroupBox Header="DETAIL SETTING" Margin="0,210,0,425">
+                                <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Snaking Slider" Style="{StaticResource CustomSettingToggleButton}" />
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Background Video" Style="{StaticResource CustomSettingToggleButton}" />
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Storyboards" Style="{StaticResource CustomSettingToggleButton}"  />
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Combo Bursts" Style="{StaticResource CustomSettingToggleButton}"  />
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Hit lighting" Style="{StaticResource CustomSettingToggleButton}"  />
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Snaking Slider" Style="{StaticResource CustomSettingToggleButton}"  />
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Shader" Style="{StaticResource CustomSettingToggleButton}"  />
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Softening filter" Style="{StaticResource CustomSettingToggleButton}"  />
+                                    </ListBoxItem>
+                                </ListBox>
+                            </GroupBox>
+                            <GroupBox Header="MAIN MENU" Margin="0,590,0,156">
+                                <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Snow" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Parallax" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Menu tips" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Osu! music theme" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Seasonal Background: " Style="{StaticResource ContentSettingText}"/>
+                                            <ComboBox Style="{StaticResource ComboBoxStyle1}" Width="181">
+                                                <ComboBoxItem Content="Always"/>
+                                                <ComboBoxItem Content="Never"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </GroupBox>
+                            <GroupBox Header="SONG SELECT" Margin="0,860,0,24">
+                                <ToggleButton Content="Show thumbnail" Style="{StaticResource CustomSettingToggleButton}"/>
+                            </GroupBox>
+                        </Grid>
+                        <Grid Height="318">
+                            <TextBlock Text="GAMEPLAY" Style="{StaticResource SettingHeader}"/>
+                            <GroupBox Margin="0,50,0,0" Header="GENERAL">
+                                <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Background dim: " FontSize="18" FontWeight="Normal"/>
+                                            <Slider Width="225" Maximum="100" Style="{StaticResource SettingSlider}"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Don't change dim level during breaks" Style="{StaticResource CustomSettingToggleButton}" />
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Progress display: " Style="{StaticResource ContentSettingText}"/>
+                                            <ComboBox Style="{StaticResource ComboBoxStyle1}" Width="216">
+                                                <ComboBoxItem>Top-Right(Pie)</ComboBoxItem>
+                                                <ComboBoxItem>Top-Right(Bar)</ComboBoxItem>
+                                                <ComboBoxItem>Bottom(Long)</ComboBoxItem>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource  CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Score meter type: " Style="{StaticResource ContentSettingText}"/>
+                                            <ComboBox Style="{StaticResource ComboBoxStyle1}" Width="207">
+                                                <ComboBoxItem>None</ComboBoxItem>
+                                                <ComboBoxItem>Color</ComboBoxItem>
+                                                <ComboBoxItem>Hit error</ComboBoxItem>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Score meter size: " Style="{StaticResource ContentSettingText}"/>
+                                            <Slider Width="222" Style="{StaticResource SettingSlider}"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Always show key overlay" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Show approach circle on first Hidden object" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </GroupBox>
+                        </Grid>
+                        <Grid Height="350">
+                            <TextBlock Text="AUDIO" Style="{StaticResource SettingHeader}"/>
+                            <GroupBox Header="VOLUME" Margin="0,50,0,130">
+                                <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Master: " Style="{StaticResource ContentSettingText}"/>
+                                            <Slider Width="300" Style="{StaticResource SettingSlider }"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Music: " Style="{StaticResource ContentSettingText}"/>
+                                            <Slider Width="305" Style="{StaticResource SettingSlider}"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Effect: " Style="{StaticResource ContentSettingText}"/>
+                                            <Slider Width="310" Style="{StaticResource SettingSlider}"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Ignore beatmap's hitsounds" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </GroupBox>
+                            <GroupBox Header="OFFSET" Margin="0,260,0,0">
+                                <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Offset: " Style="{StaticResource ContentSettingText}"/>
+                                            <Slider Width="300" Style="{StaticResource SettingSlider}"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </GroupBox>
+                        </Grid>
+                        <Grid Height="375">
+                            <TextBlock Text="SKIN" Style="{StaticResource SettingHeader}"/>
+                            <GroupBox Header="SKIN" Margin="0,50,0,0">
+                                <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <Grid Height="124" Width="366">
+                                            <Grid.Resources>
+                                                <Style TargetType="Image">
+                                                    <Setter Property="Stretch" Value="Uniform"/>
+                                                    <Setter Property="Width" Value="75"/>
+                                                    <Setter Property="Height" Value="75"/>
+                                                </Style>
+                                            </Grid.Resources>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Image x:Name="imgSkinPreviewNote" />
+                                            <Image x:Name="imgSkinPreview50"  Grid.Column="1"/>
+                                            <Image x:Name="imgSkinPreview100" Grid.Column="2"/>
+                                            <Image x:Name="imgSkinPreview300" Grid.Column="3"/>
+
+                                        </Grid>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Current Skin: " Style="{StaticResource ContentSettingText}"/>
+                                            <ComboBox x:Name="cbxSkinList" Style="{StaticResource ComboBoxStyle1}" Width="250"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <Grid Height="36">
+                                            <Button Content="Open current skin folder" Style="{StaticResource ButtonOsu}" Width="352" Margin="5"/>
+                                        </Grid>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Ignore all beatmap skins" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Cursor Size:  " Style="{StaticResource ContentSettingText}"/>
+                                            <Slider Width="250" Style="{StaticResource SettingSlider}"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </GroupBox>
+                        </Grid>
+                        <Grid Height="500">
+                            <TextBlock Text="INPUT" Style="{StaticResource SettingHeader}"/>
+                            <GroupBox Header="MOUSE" Margin="0,50,0,300">
+                                <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Sensitivity: " Style="{StaticResource ContentSettingText}"/>
+                                            <Slider Style="{StaticResource SettingSlider}" Width="266"/>
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Disable Mouse Wheel in Play Mode" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <ToggleButton Content="Disable Mouse Button in Play Mode" Style="{StaticResource CustomSettingToggleButton}"/>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </GroupBox>
+                            <GroupBox Header="KEYBOARRD" Margin="0,250,0,0">
+                                <ListBox Style="{StaticResource CustomListBoxSetting}">
+                                    <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Left Button: " Width="325" Style="{StaticResource ContentSettingText}"/>
+                                            <TextBox Background="Transparent" CaretBrush="White" Width="32" ></TextBox>
+                                        </StackPanel> 
+                                    </ListBoxItem>
+                                    <ListBoxItem Style="{StaticResource  CustomListaBoxItem}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Right Button: " Width="325" Style="{StaticResource ContentSettingText}"/>
+                                            <TextBox Background="Transparent" CaretBrush="White" Width="32" />
+                                        </StackPanel>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </GroupBox>
+                        </Grid>
+                        
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
+            
             <Grid x:Name="JumptoWindowPanel" Visibility="Hidden">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -242,7 +768,7 @@
                 <Rectangle Fill="Black" Opacity="0.8" Grid.RowSpan="3"></Rectangle>
                 <TextBlock Text="  Jump To..." Foreground="White" FontSize="36"/>
                 <TextBlock Text="Collection" Foreground="Orange" FontSize="36" Margin="45"/>
-                <ComboBox x:Name="bcxCollection" Margin="45,100,1050,130" OverridesDefaultStyle="True" >
+                <ComboBox x:Name="bcxCollection" Margin="45,92,1050,138" OverridesDefaultStyle="True" >
                     <ComboBox.Template>
                         <ControlTemplate TargetType="ComboBox">
                             <Grid>
@@ -304,9 +830,20 @@
                 </Border>
             </Canvas>
             <!--Overlay Message-->
-            <Grid x:Name="OverlayMessage" VerticalAlignment="Center" Height="50" Opacity="0" Visibility="Collapsed">
+            <Grid x:Name="OverlayMessage" VerticalAlignment="Center" Height="50" Opacity="0" IsHitTestVisible="False">
                 <Rectangle Fill="Black" Opacity="0.5"/>
                 <TextBlock x:Name="txblOverlayMessage" Text="Overlay Message" FontSize="24" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Grid>
+            <!-- Jump to window -->
+            <Grid Visibility="Collapsed">
+                <Rectangle Fill="Black" Opacity="0.8"/>
+                <TextBlock Text="Jump To..." Foreground="White" FontSize="48" Margin="1,3,-1,-3"/>
+                <TextBox x:Name="SearchBox" Background="Transparent" Margin="1100,130,10,620" Text="Type To Search!" Foreground="White" FontSize="24"/>
+                <Border BorderBrush="White" BorderThickness="3" Margin="50,166,50,65">
+                    <ListBox x:Name="JumpToItem" Background="Black" Foreground="White" FontSize="36">
+                        
+                    </ListBox>
+                </Border>
             </Grid>
         </Grid>
         <Grid x:Name="windowCurtain" Opacity="0" Background="Black" Visibility="Collapsed">

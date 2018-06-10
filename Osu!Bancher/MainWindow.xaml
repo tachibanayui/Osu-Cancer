@@ -1,0 +1,80 @@
+﻿<Window x:Class="Osu_Bancher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Osu_Bancher"
+        mc:Ignorable="d"
+        Title="Osu!Bancher" Height="768" Width="1280" Closing="Window_Closing">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Border BorderBrush="Black" BorderThickness="1" Margin="5">
+            <Grid>
+                <Grid.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="FontSize" Value="18"/>
+                        <Setter Property="VerticalAlignment" Value="Top"/>
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="VerticalAlignment" Value="Top"/>
+                        <Setter Property="FontSize" Value="18"/>
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Host Information:" Margin="5,5,5,0" FontSize="24" TextAlignment="Right"/>
+                <TextBlock Text="Ip Address: " Margin="30,40,30,0"/>
+                <TextBlock Text="Port:" Margin="30,70,30,0"/>
+                <TextBox x:Name="txbIpAddress" Margin="140,40,20,0"/>
+                <TextBox x:Name="txbPort" Margin="140,70,20,0"/>
+                <Button Content="Start Host Osu!Cancer Private Server" Margin="125,84,10,91" Click="Button_Click_1" VerticalAlignment="Bottom"/>
+
+                <Border Background="Black" Grid.Row="1">
+                    <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Background" Value="Black"/>
+                                <Setter Property="FontSize" Value="18"/>
+                                <Setter Property="VerticalAlignment" Value="Top"/>
+                            </Style>
+                        </Grid.Resources>
+                        <TextBlock Text="Server Status: " FontSize="24" TextAlignment="Right"/>
+                        <TextBlock Text="State: "  Margin="10, 40"/>
+                        <TextBlock Text="{Binding ServerStatus}" Margin="100,40" Foreground="Green"/>
+                        <TextBlock Text="Connection: "  Margin="10,60"/>
+                        <TextBlock Text="{Binding OnlineUser}" Margin="120,60" Foreground="Green"/>
+
+                        <Grid VerticalAlignment="Bottom">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button Content="Stop Server" ToolTip="Shutdown the server normally"/>
+                            <Button Content="Kill Server" Grid.Column="1" ToolTip="Force Shutdown" Click="Button_Click"/>
+                            <Button Content="Delete Server Data" Grid.Column="2"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+        <TextBlock Text="   Output" Grid.Column="1"/>
+        <Border Margin="10, 20, 10, 50" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+            <ScrollViewer x:Name="ScrollOutput" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <TextBox x:Name="txbOutput"></TextBox>
+            </ScrollViewer>
+        </Border>
+
+        <Border BorderBrush="Black" Grid.Column="1" Margin="10,374,10,10" BorderThickness="1" VerticalAlignment="Bottom">
+            <TextBlock x:Name="txbServerInput"></TextBlock>
+        </Border>
+    </Grid>
+    
+</Window>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -43,8 +44,8 @@ namespace Osu_Cancer
             settingIcon = new List<BitmapImage>();
             IsSettingPanelOpen = false;
             GetAccountInformation();
-            ScreenX = int.Parse(System.Windows.SystemParameters.PrimaryScreenWidth.ToString());
-            ScreenY = int.Parse(System.Windows.SystemParameters.PrimaryScreenHeight.ToString());
+            ScreenX = int.Parse(SystemParameters.PrimaryScreenWidth.ToString());
+            ScreenY = int.Parse(SystemParameters.PrimaryScreenHeight.ToString());
             IsBGMPause = false;
             NowplayingLength = 366;
             isShowPernamentlyInfo = true;
@@ -54,6 +55,9 @@ namespace Osu_Cancer
             ExitTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\ExitTab.png";
             EditTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\EditTab.png";
             OptionTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\OptionTab.png";
+            SoloTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SoloTab.png";
+            MultiTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\MultiTab.png";
+            BackTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\BackTab.png";
         }
 
         private void GetAccountInformation()
@@ -69,6 +73,10 @@ namespace Osu_Cancer
             Nowplaying = "Nekodex - Circle";
         }
 
+        public void ReloadInformation()
+        {
+            GetAccountInformation();
+        }
         public string BaseDir { get; set; }
         private string logo;
         public string Logo {
@@ -134,6 +142,46 @@ namespace Osu_Cancer
                 }
             }
         }
+        private string soloTab;
+        public string SoloTab
+        {
+            get { return soloTab; }
+            set
+            {
+                if(soloTab != value)
+                {
+                    soloTab = value;
+                    NotifyPropertyChanged("SoloTab");
+                }
+            }
+        }
+        private string multiTab;
+        public string MultiTab
+        {
+            get { return multiTab; }
+            set
+            {
+                if (multiTab != value)
+                {
+                    multiTab = value;
+                    NotifyPropertyChanged("MultiTab");
+                }
+            }
+        }
+        private string backTab;
+        public string BackTab
+        {
+            get { return backTab; }
+            set
+            {
+                if(backTab != value)
+                {
+                    backTab = value;
+                    NotifyPropertyChanged("BackTab");
+                }
+            }
+        }
+        public Socket CurrentSocket { get; set; }
         public string NewUpdateandBuildDir { get; set; }
         public string NewUpdateContent { get; set; }
         public string SongPath { get; set; }
@@ -144,12 +192,84 @@ namespace Osu_Cancer
         public int ScreenY { get; set; }
         public bool IsSettingPanelOpen { get; set; }
         public bool IsBGMPause { get; set; }
-        public string Username { get; set;}
-        public string Accuracy { get; set; }
-        public string Lv { get; set; }
-        public string Pp { get; set; }
-        public int ProgLv { get; set; }
-        public string Rank { get; set; }
+        private string username;
+        public string Username
+        {
+            get { return username; }
+            set
+            {
+                if(username != value)
+                {
+                    username = value;
+                    NotifyPropertyChanged("Username");
+                }
+            }
+        }
+        private string accuracy;
+        public string Accuracy
+        {
+            get { return accuracy; }
+            set
+            {
+                if(accuracy != value)
+                {
+                    accuracy = value;
+                    NotifyPropertyChanged("Accuracy");
+                }
+            }
+        }
+        private string lv;
+        public string Lv
+        {
+            get { return lv; }
+            set
+            {
+                if(lv != value)
+                {
+                    lv = value;
+                    NotifyPropertyChanged("Lv");
+                }
+            }
+        }
+        private string pp;
+        public string Pp
+        {
+            get { return pp; }
+            set
+            {
+                if(pp != value)
+                {
+                    pp = value;
+                    NotifyPropertyChanged("Pp");
+                }
+            }
+        }
+        private int progLv;
+        public int ProgLv
+        {
+            get { return progLv; }
+            set
+            {
+                if (progLv != value)
+                {
+                    progLv = value;
+                    NotifyPropertyChanged("ProgLv");
+                }
+            }
+        }
+        private string rank;
+        public string Rank
+        {
+            get { return rank; }
+            set
+            {
+                if(rank != value)
+                {
+                    rank = value;
+                    NotifyPropertyChanged("Rank");
+                }
+            }
+        }
         public string Nowplaying
         {
             get { return nowplaying; }
@@ -331,6 +451,12 @@ namespace Osu_Cancer
         FadeInPreLoad,
         MainScreen,
     }
+    public enum OsuCookieBehaviour
+    {
+        ClickToOpenTab,
+        ClickToAutoSelectPlay,
+        ClickToAutoSelectSinglePlayer
+    }
     public class EndAnimationPos
     {
         public Thickness Activated;
@@ -339,6 +465,19 @@ namespace Osu_Cancer
         {
             Activated = activated;
             NonActivated = nonActivated;
+        }
+    }
+    public class SocketOpreation
+    {
+        public object State;
+        public Socket Socket;
+        public byte[] Buffer;
+        public int size;
+
+        public SocketOpreation(int size)
+        {
+            this.size = size;
+            Buffer = new byte[this.size];
         }
     }
 }

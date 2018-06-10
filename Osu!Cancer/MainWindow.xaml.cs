@@ -17,6 +17,9 @@ using System.Windows.Threading;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
 using System.IO;
+using System.Net.Sockets;
+using System.Net;
+using System.Windows.Controls.Primitives;
 
 namespace Osu_Cancer
 {
@@ -72,6 +75,9 @@ namespace Osu_Cancer
         bool isAwaitVolumeGaugeRunning = false;
         int songLength;
         Thickness defaultLogoMargin;
+        OsuCookieBehaviour osuCookieBehaviour;
+        bool isPlayClickFirstTime = true;
+        bool isMainMenuClickFirstTime = true;
         #endregion
 
         public MainWindow()
@@ -135,11 +141,16 @@ namespace Osu_Cancer
             AccountInfo.Visibility = Visibility.Visible;
             imgOsuLogo.Margin = new Thickness(130);
             defaultLogoMargin = imgOsuLogo.Margin;
+            osuCookieBehaviour = OsuCookieBehaviour.ClickToOpenTab;
+            
             //Add default margin to SelectionTab
             imgPlayTab.Tag = new EndAnimationPos(new Thickness(450, 155, 210, 515), new Thickness(490, 155, 170, 515));
             imgExitTab.Tag = new EndAnimationPos(new Thickness(450, 505, 210, 165), new Thickness(490, 505, 170, 165));
             imgEditTab.Tag = new EndAnimationPos(new Thickness(430, 275, 130, 395), new Thickness(470, 275, 130, 395));
             imgOptionTab.Tag = new EndAnimationPos(new Thickness(440, 385, 110, 285), new Thickness(470, 385, 130, 285));
+            imgSoloTab.Tag = new EndAnimationPos(new Thickness(460, 225, 210, 447), new Thickness(500, 225, 170, 447));
+            imgMultiTab.Tag = new EndAnimationPos(new Thickness(460, 335, 200, 335), new Thickness(500, 335, 160, 335));
+            imgBackTab.Tag = new EndAnimationPos(new Thickness(460, 440, 200, 230), new Thickness(500, 440, 160, 230));
         }
         private void HotkeyImplementing()
         {
@@ -277,6 +288,288 @@ namespace Osu_Cancer
             double leftMargin = (ScaledMousePos.X - 50) / 10 - 10;
             double topMargin = (ScaledMousePos.Y - 50) / 10 - 10;
             BackgroundImage.Margin = new Thickness(leftMargin, topMargin, -10 - leftMargin, -10 - topMargin);
+        }
+        private void Grid_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (currentSection == OsuSection.PreLoad || workingResources.IsSettingPanelOpen)
+                return;
+
+            if (isAwaitVolumeGaugeRunning)
+            {
+                _volumeGauge.Abort();
+                isAwaitVolumeGaugeRunning = false;
+            }
+
+            if (VolumeMixer.Visibility == Visibility.Collapsed)
+            {
+                VolumeMixer.Visibility = Visibility.Visible;
+                DoubleAnimation fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.1), FillBehavior.Stop);
+                fadeIn.Completed += (object senderr, EventArgs ee) => { VolumeMixer.Opacity = 1; };
+                VolumeMixer.BeginAnimation(OpacityProperty, fadeIn);
+                CountDownFadeOutVolume();
+                _volumeGauge.Start();
+                isAwaitVolumeGaugeRunning = true;
+                return;
+            }
+
+            if (e.Delta > 0)
+                workingResources.MasterVolumeValue += 5;
+            else
+                workingResources.MasterVolumeValue -= 5;
+
+            CountDownFadeOutVolume();
+            _volumeGauge.Start();
+            isAwaitVolumeGaugeRunning = true;
+        }
+        private void CountDownFadeOutVolume()
+        {
+            try
+            {
+                _volumeGauge = new Thread(() =>
+                {
+                    Thread.Sleep(1500);
+
+                    Dispatcher.Invoke(() =>
+                    {
+                        DoubleAnimation fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.1), FillBehavior.Stop);
+                        fadeOut.Completed += (object senderr, EventArgs ee) =>
+                        {
+                            VolumeMixer.Opacity = 0;
+                            VolumeMixer.Visibility = Visibility.Collapsed;
+                        };
+                        VolumeMixer.BeginAnimation(OpacityProperty, fadeOut);
+                        isAwaitVolumeGaugeRunning = false;
+                    });
+                });
+            }
+            catch { }
+        }
+        private void VolmumeAnimmation()
+        {
+            for (int i = 0; i < workingResources.MasterVolumeValue; i++)
+            {
+                VolumeString.Text = i + "%";
+                Thread.Sleep(20);
+            }
+        }
+        private void imgOsuLogo_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (osuCookieBehaviour == OsuCookieBehaviour.ClickToOpenTab)
+            {
+                Thickness slideVal = new Thickness(-105, 130, 400, 130);
+
+                ThicknessAnimation slide = new ThicknessAnimation(slideVal, TimeSpan.FromSeconds(0.35));
+                TabSlider();
+
+                imgOsuLogo.BeginAnimation(MarginProperty, slide);
+                defaultLogoMargin = slideVal;
+                osuCookieBehaviour = OsuCookieBehaviour.ClickToAutoSelectPlay;
+            }
+        }
+        private void TabSlider()
+        {
+            imgPlayTab.Visibility = Visibility.Visible;
+            imgExitTab.Visibility = Visibility.Visible;
+            imgEditTab.Visibility = Visibility.Visible;
+            imgOptionTab.Visibility = Visibility.Visible;
+
+            ThicknessAnimation tabPlaySlide = new ThicknessAnimation(new Thickness(450, 155, 210, 515), TimeSpan.FromSeconds(0.5));
+            ThicknessAnimation tabExitSlide = new ThicknessAnimation(new Thickness(450, 505, 210, 165), TimeSpan.FromSeconds(0.5));
+            ThicknessAnimation tabEditSlide = new ThicknessAnimation(new Thickness(430, 275, 130, 395), TimeSpan.FromSeconds(0.5));
+            ThicknessAnimation tabOptionSlide = new ThicknessAnimation(new Thickness(440, 385, 110, 285), TimeSpan.FromSeconds(0.5));
+            DoubleAnimation tabFadeIn = new DoubleAnimation(1, TimeSpan.FromSeconds(0.5));
+
+            imgPlayTab.BeginAnimation(MarginProperty, null);
+            imgEditTab.BeginAnimation(MarginProperty, null);
+            imgOptionTab.BeginAnimation(MarginProperty, null);
+            imgExitTab.BeginAnimation(MarginProperty, null);
+
+            imgPlayTab.BeginAnimation(MarginProperty, tabPlaySlide);
+            imgPlayTab.BeginAnimation(OpacityProperty, tabFadeIn);
+            imgExitTab.BeginAnimation(MarginProperty, tabExitSlide);
+            imgExitTab.BeginAnimation(OpacityProperty, tabFadeIn);
+            imgEditTab.BeginAnimation(MarginProperty, tabEditSlide);
+            imgEditTab.BeginAnimation(OpacityProperty, tabFadeIn);
+            imgOptionTab.BeginAnimation(MarginProperty, tabOptionSlide);
+            imgOptionTab.BeginAnimation(OpacityProperty, tabFadeIn);
+
+            if (isMainMenuClickFirstTime)
+            {
+                imgPlayTab.MouseEnter += ImgPlayTab_MouseEnter;
+                imgPlayTab.MouseLeave += ImgPlayTab_MouseLeave;
+                imgExitTab.MouseEnter += ImgPlayTab_MouseEnter;
+                imgExitTab.MouseLeave += ImgPlayTab_MouseLeave;
+                imgEditTab.MouseEnter += ImgPlayTab_MouseEnter;
+                imgEditTab.MouseLeave += ImgPlayTab_MouseLeave;
+                imgOptionTab.MouseEnter += ImgPlayTab_MouseEnter;
+                imgOptionTab.MouseLeave += ImgPlayTab_MouseLeave;
+
+                imgPlayTab.MouseDown += ImgPlayTab_MouseDown;
+                imgOptionTab.MouseDown += (object sender, MouseButtonEventArgs e) => { OpenSettingPanel(); };
+                imgExitTab.MouseDown += (object sender, MouseButtonEventArgs e) =>
+                {
+                    media.Source = new Uri(workingResources.BaseDir + @"Resources\Default Audio\Goodbye.wav");
+                    windowCurtain.Visibility = Visibility.Visible;
+                    DoubleAnimation doubleAnimation = new DoubleAnimation(1, TimeSpan.FromSeconds(1.25));
+                    doubleAnimation.Completed += (object sendeer, EventArgs ee) => { Environment.Exit(0); };
+                    media.Play();
+                    windowCurtain.BeginAnimation(OpacityProperty, doubleAnimation);
+                };
+                imgEditTab.MouseDown += (object sender, MouseButtonEventArgs e) => { ShowOverlayMessage("Not avaiable! Please try later version"); };
+                isMainMenuClickFirstTime = false;
+            }
+        }
+        private void ImgPlayTab_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Image img = (Image)sender;
+            ThicknessAnimation slideOut = new ThicknessAnimation(((EndAnimationPos)img.Tag).Activated, TimeSpan.FromSeconds(0.15));
+            DoubleAnimation fadeOut = new DoubleAnimation(0, TimeSpan.FromSeconds(0.15));
+            fadeOut.Completed += (object senderr, EventArgs ee) =>
+            {
+
+                imgPlayTab.Margin = new Thickness(250, 155, 410, 515);
+                imgEditTab.Margin = new Thickness(230, 275, 330, 395);
+                imgOptionTab.Margin = new Thickness(240, 385, 310, 285);
+                imgExitTab.Margin = new Thickness(250, 505, 410, 165);
+            };
+
+            img.BeginAnimation(MarginProperty, slideOut);
+            img.BeginAnimation(OpacityProperty, fadeOut);
+
+            if (img.Name == "imgPlayTab")
+            {
+                fadeOut.Completed += (object sendder, EventArgs ee) =>
+                {
+                    imgEditTab.Visibility = Visibility.Collapsed;
+                    imgPlayTab.Visibility = Visibility.Collapsed;
+                    imgOptionTab.Visibility = Visibility.Collapsed;
+                    imgExitTab.Visibility = Visibility.Collapsed;
+                };
+                imgEditTab.BeginAnimation(OpacityProperty, fadeOut);
+                imgOptionTab.BeginAnimation(OpacityProperty, fadeOut);
+                imgExitTab.BeginAnimation(OpacityProperty, fadeOut);
+                PlayModeOpen();
+            }
+            else
+            {
+                fadeOut.Completed += (object sendder, EventArgs ee) =>
+                {
+                    imgSoloTab.Visibility = Visibility.Collapsed;
+                    imgMultiTab.Visibility = Visibility.Collapsed;
+                    imgBackTab.Visibility = Visibility.Collapsed;
+                };
+                imgSoloTab.BeginAnimation(OpacityProperty, fadeOut);
+                imgMultiTab.BeginAnimation(OpacityProperty, fadeOut);
+                TabSlider();
+            }
+
+        }
+        private void PlayModeOpen()
+        {
+            imgSoloTab.Visibility = Visibility.Visible;
+            imgMultiTab.Visibility = Visibility.Visible;
+            imgBackTab.Visibility = Visibility.Visible;
+
+            ThicknessAnimation sildeInSoloTab = new ThicknessAnimation(new Thickness(460, 225, 210, 447), TimeSpan.FromSeconds(0.5));
+            ThicknessAnimation sildeInMultiTab = new ThicknessAnimation(new Thickness(460, 335, 200, 335), TimeSpan.FromSeconds(0.5));
+            ThicknessAnimation sildeInBackTab = new ThicknessAnimation(new Thickness(460, 440, 200, 230), TimeSpan.FromSeconds(0.5));
+            DoubleAnimation fadeInTab = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.5));
+
+            imgSoloTab.BeginAnimation(MarginProperty, sildeInSoloTab);
+            imgSoloTab.BeginAnimation(OpacityProperty, fadeInTab);
+            imgMultiTab.BeginAnimation(MarginProperty, sildeInMultiTab);
+            imgMultiTab.BeginAnimation(OpacityProperty, fadeInTab);
+            imgBackTab.BeginAnimation(MarginProperty, sildeInBackTab);
+            imgBackTab.BeginAnimation(OpacityProperty, fadeInTab);
+
+            if (isPlayClickFirstTime)
+            {
+                imgSoloTab.MouseEnter += ImgPlayTab_MouseEnter;
+                imgSoloTab.MouseLeave += ImgPlayTab_MouseLeave;
+                imgMultiTab.MouseEnter += ImgPlayTab_MouseEnter;
+                imgMultiTab.MouseLeave += ImgPlayTab_MouseLeave;
+                imgBackTab.MouseEnter += ImgPlayTab_MouseEnter;
+                imgBackTab.MouseLeave += ImgPlayTab_MouseLeave;
+
+                imgMultiTab.MouseDown += (object senders, MouseButtonEventArgs ee) => { ShowOverlayMessage("Multiplayer is not avaible in this version! Try again in the next future"); };
+                imgBackTab.MouseDown += ImgPlayTab_MouseDown;
+                isPlayClickFirstTime = false;
+            }
+        }
+        private void ImgPlayTab_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Image img = sender as Image;
+
+            img.BeginAnimation(MarginProperty, null);
+            img.Margin = ((EndAnimationPos)img.Tag).NonActivated;
+            ThicknessAnimation animation = new ThicknessAnimation(((EndAnimationPos)img.Tag).Activated, TimeSpan.FromSeconds(0.075));
+            animation.Completed += (object senderr, EventArgs ee) =>
+            {
+                ChangeTabImage(img, false);
+            };
+            img.BeginAnimation(MarginProperty, animation);
+        }
+        private void ChangeTabImage(Image img, bool isActivate)
+        {
+            switch (img.Name)
+            {
+                case "imgPlayTab":
+                    if (isActivate)
+                        workingResources.PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedPlayTab.png";
+                    else
+                        workingResources.PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\PlayTab.png";
+                    break;
+                case "imgExitTab":
+                    if (isActivate)
+                        workingResources.ExitTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedExitTab.png";
+                    else
+                        workingResources.ExitTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\ExitTab.png";
+                    break;
+                case "imgEditTab":
+                    if (isActivate)
+                        workingResources.EditTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedEditTab.png";
+                    else
+                        workingResources.EditTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\EditTab.png";
+                    break;
+                case "imgOptionTab":
+                    if (isActivate)
+                        workingResources.OptionTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedOptionTab.png";
+                    else
+                        workingResources.OptionTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\OptionTab.png";
+                    break;
+                case "imgSoloTab":
+                    if (isActivate)
+                        workingResources.SoloTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedSoloTab.png";
+                    else
+                        workingResources.SoloTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SoloTab.png";
+                    break;
+                case "imgMultiTab":
+                    if (isActivate)
+                        workingResources.MultiTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedMultiTab.png";
+                    else
+                        workingResources.MultiTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\MultiTab.png";
+                    break;
+                case "imgBackTab":
+                    if (isActivate)
+                        workingResources.BackTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedBackTab.png";
+                    else
+                        workingResources.BackTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\BackTab.png";
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void ImgPlayTab_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Image img = (Image)sender;
+            img.BeginAnimation(MarginProperty, null);
+
+            img.Margin = ((EndAnimationPos)img.Tag).Activated;
+
+            ChangeTabImage(img, true);
+            ThicknessAnimation animation = new ThicknessAnimation(((EndAnimationPos)img.Tag).NonActivated, TimeSpan.FromSeconds(0.075));
+            animation.Completed += (object a, EventArgs w) => { ChangeTabImage(img, true); };
+            img.BeginAnimation(MarginProperty, animation);
         }
         #endregion
 
@@ -433,8 +726,6 @@ namespace Osu_Cancer
                 Thread.Sleep(1000);
             }
         }
-
-
         private void NextSong()
         {
             LastSongIndex++;
@@ -473,183 +764,82 @@ namespace Osu_Cancer
         }
         #endregion
 
-        private void Grid_MouseWheel(object sender, MouseWheelEventArgs e)
+        private void btnConnectEP(object sender, RoutedEventArgs e)
         {
-            if (currentSection == OsuSection.PreLoad || workingResources.IsSettingPanelOpen)
-                return;
-
-            if (isAwaitVolumeGaugeRunning)
+            string btnContent = (string)((Button)sender).Content;
+            if (btnContent == "Connected!" || btnContent == "Connecting...")
             {
-                _volumeGauge.Abort();
-                isAwaitVolumeGaugeRunning = false;
-            }
-
-            if (VolumeMixer.Visibility == Visibility.Collapsed)
-            {
-                VolumeMixer.Visibility = Visibility.Visible;
-                DoubleAnimation fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.1), FillBehavior.Stop);
-                fadeIn.Completed += (object senderr, EventArgs ee) => { VolumeMixer.Opacity = 1; };
-                VolumeMixer.BeginAnimation(OpacityProperty, fadeIn);
-                CountDownFadeOutVolume();
-                _volumeGauge.Start();
-                isAwaitVolumeGaugeRunning = true;
                 return;
             }
 
-            if (e.Delta > 0)            
-                workingResources.MasterVolumeValue += 5;
-            else
-                workingResources.MasterVolumeValue -= 5;
-
-            CountDownFadeOutVolume();
-            _volumeGauge.Start();
-            isAwaitVolumeGaugeRunning = true;
-        }
-        private void CountDownFadeOutVolume()
-        {
+            IPEndPoint serverEP;
+            IPAddress serverIP;
             try
             {
-                _volumeGauge = new Thread(() =>
-                {
-                    Thread.Sleep(1500);
-
-                    Dispatcher.Invoke(() =>
-                    {
-                        DoubleAnimation fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.1), FillBehavior.Stop);
-                        fadeOut.Completed += (object senderr, EventArgs ee) =>
-                        {
-                            VolumeMixer.Opacity = 0;
-                            VolumeMixer.Visibility = Visibility.Collapsed;
-                        };
-                        VolumeMixer.BeginAnimation(OpacityProperty, fadeOut);
-                        isAwaitVolumeGaugeRunning = false;
-                    });
-                });
+                string strIPAdress = txbEndPoint.Text.Split(':')[0];
+                int port = int.Parse(txbEndPoint.Text.Split(':')[1]);
+                serverIP = IPAddress.Parse(strIPAdress);
+                serverEP = new IPEndPoint( serverIP, port);
             }
-            catch { }
-        }
-        private void VolmumeAnimmation()
-        {
-            for (int i = 0; i < workingResources.MasterVolumeValue; i++)
+            catch
             {
-                VolumeString.Text = i + "%";
-                Thread.Sleep(20);
+                ShowOverlayMessage("Can't connect to server, Please check your information!");
+                return;
             }
+
+            workingResources.CurrentSocket = new Socket(serverIP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            SocketOpreation socketOpration = new SocketOpreation(1024);
+            socketOpration.Socket = workingResources.CurrentSocket;
+            socketOpration.State = sender;
+            workingResources.CurrentSocket.BeginConnect(serverEP, ConnectCallBack, socketOpration);
+            ((Button)sender).Content = "Connecting...";
         }
 
-        private void imgOsuLogo_MouseDown(object sender, MouseButtonEventArgs e)
+        private void ConnectCallBack(IAsyncResult ar)
         {
-            Thickness slideVal = new Thickness(-105, 130, 400, 130);
-            
-            ThicknessAnimation slide = new ThicknessAnimation(slideVal, TimeSpan.FromSeconds(0.35));
-            TabSlider();
-
-            imgOsuLogo.BeginAnimation(MarginProperty, slide);
-            defaultLogoMargin = slideVal;
+            SocketOpreation socketOpreation = (SocketOpreation)ar.AsyncState;
+            Socket socket = socketOpreation.Socket;
+            Button btn = (Button)socketOpreation.State;
+           
+            Dispatcher.Invoke(() => { btn.Content = "Connected!"; });
+            try { socket.EndConnect(ar); }
+            catch { return; }    
         }
 
-        private void TabSlider()
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            imgPlayTab.Visibility = Visibility.Visible;
-            imgExitTab.Visibility = Visibility.Visible;
-            imgEditTab.Visibility = Visibility.Visible;
-            imgOptionTab.Visibility = Visibility.Visible;
-
-            ThicknessAnimation tabPlaySlide = new ThicknessAnimation(new Thickness(450, 155, 210, 515), TimeSpan.FromSeconds(0.5));
-            ThicknessAnimation tabExitSlide = new ThicknessAnimation(new Thickness(450, 505, 210, 165), TimeSpan.FromSeconds(0.5));
-            ThicknessAnimation tabEditSlide = new ThicknessAnimation(new Thickness(430, 275, 130, 395), TimeSpan.FromSeconds(0.5));
-            ThicknessAnimation tabOptionSlide = new ThicknessAnimation(new Thickness(440, 385, 110, 285), TimeSpan.FromSeconds(0.5));
-            DoubleAnimation tabFadeIn = new DoubleAnimation(1, TimeSpan.FromSeconds(0.5));
-
-            imgPlayTab.BeginAnimation(MarginProperty, tabPlaySlide);
-            imgPlayTab.BeginAnimation(OpacityProperty, tabFadeIn);
-            imgExitTab.BeginAnimation(MarginProperty, tabExitSlide);
-            imgExitTab.BeginAnimation(OpacityProperty, tabFadeIn);
-            imgEditTab.BeginAnimation(MarginProperty, tabEditSlide);
-            imgEditTab.BeginAnimation(OpacityProperty, tabFadeIn);
-            imgOptionTab.BeginAnimation(MarginProperty, tabOptionSlide);
-            imgOptionTab.BeginAnimation(OpacityProperty, tabFadeIn);
-
-            imgPlayTab.MouseEnter += ImgPlayTab_MouseEnter;
-            imgPlayTab.MouseLeave += ImgPlayTab_MouseLeave;
-            imgExitTab.MouseEnter += ImgPlayTab_MouseEnter;
-            imgExitTab.MouseLeave += ImgPlayTab_MouseLeave;
-            imgEditTab.MouseEnter += ImgPlayTab_MouseEnter;
-            imgEditTab.MouseLeave += ImgPlayTab_MouseLeave;
-            imgOptionTab.MouseEnter += ImgPlayTab_MouseEnter;
-            imgOptionTab.MouseLeave += ImgPlayTab_MouseLeave;
-
-            imgOptionTab.MouseDown += (object sender, MouseButtonEventArgs e) => { OpenSettingPanel(); };
-            imgExitTab.MouseDown += (object sender, MouseButtonEventArgs e) => 
+            if(workingResources.CurrentSocket == null)
             {
-                media.Source = new Uri(workingResources.BaseDir + @"Resources\Default Audio\Goodbye.wav");
-                windowCurtain.Visibility = Visibility.Visible;
-                DoubleAnimation doubleAnimation = new DoubleAnimation(1, TimeSpan.FromSeconds(1.25));
-                doubleAnimation.Completed += (object sendeer, EventArgs ee) => { Environment.Exit(0); };
-                media.Play();
-                windowCurtain.BeginAnimation(OpacityProperty, doubleAnimation);
-            };
-            imgEditTab.MouseDown += (object sender, MouseButtonEventArgs e) => { ShowOverlayMessage("Not avaiable! Please try later version"); };
-        }
-
-        private void ImgPlayTab_MouseLeave(object sender, MouseEventArgs e)
-        {
-            Image img = sender as Image;
-
-            img.BeginAnimation(MarginProperty, null);
-            img.Margin = ((EndAnimationPos)img.Tag).NonActivated;
-            ThicknessAnimation animation = new ThicknessAnimation(((EndAnimationPos)img.Tag).Activated, TimeSpan.FromSeconds(0.075));
-            animation.Completed += (object senderr, EventArgs ee) =>
-            {
-                ChangeTabImage(img, false);
-            };
-            img.BeginAnimation(MarginProperty, animation);
-        }
-
-        private void ChangeTabImage(Image img, bool isActivate)
-        {
-            switch (img.Name)
-            {
-                case "imgPlayTab":
-                    if(isActivate)
-                        workingResources.PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedPlayTab.png";
-                    else
-                        workingResources.PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\PlayTab.png";
-                    break;
-                case "imgExitTab":
-                    if (isActivate)
-                        workingResources.ExitTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedExitTab.png";
-                    else
-                        workingResources.ExitTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\ExitTab.png";
-                    break;
-                case "imgEditTab":
-                    if(isActivate)
-                        workingResources.EditTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedEditTab.png";
-                    else
-                        workingResources.EditTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\EditTab.png";
-                    break;
-                case "imgOptionTab":
-                    if(isActivate)
-                        workingResources.OptionTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SelectedOptionTab.png";
-                    else
-                        workingResources.OptionTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\OptionTab.png";
-                    break;
-                default:
-                    break;
+                ShowOverlayMessage("You not connect to any server! Online Feature not work without server!");
+                return;
             }
+            byte[] data = Encoding.Default.GetBytes($"{txbUsername.Text}:{txbPassword.Text}");
+            workingResources.CurrentSocket.BeginSend(data, 0, data.Length, 0, LoginCallBack, workingResources.CurrentSocket);
+
         }
 
-        private void ImgPlayTab_MouseEnter(object sender, MouseEventArgs e)
+        private void LoginCallBack(IAsyncResult ar)
         {
-            Image img = (Image)sender;
-            img.BeginAnimation(MarginProperty, null);
+            Socket socket = ar.AsyncState as Socket;
+            socket.EndSend(ar);
+            byte[] buffer = new byte[1024];
+            int receiveSize = 0;
+            try {receiveSize = socket.Receive(buffer); }
+            catch(Exception e)
+            {
+                FileOperation.ExceptionHandle(e, "Server Disconnected!");
+            }
+            string receivedString = Encoding.Default.GetString(buffer, 0, receiveSize);
+            if(receivedString == "WrongPassword" || receivedString == "WrongUsername")
+            {
+                Dispatcher.Invoke(() => { ShowOverlayMessage("Failed to Login:" + receivedString); });
+                return;
+            }
 
-            img.Margin = ((EndAnimationPos)img.Tag).Activated;
-
-            ChangeTabImage(img, true);
-            ThicknessAnimation animation = new ThicknessAnimation(((EndAnimationPos)img.Tag).NonActivated, TimeSpan.FromSeconds(0.075));
-            animation.Completed += (object a, EventArgs w) => { ChangeTabImage(img, true); };
-            img.BeginAnimation(MarginProperty, animation);
+            FileOperation.ByteArraytoFile(workingResources.BaseDir + @"Resources\UserInfo.cfg", buffer, receiveSize);
+            workingResources.ReloadInformation();
         }
+
+      
     }
 }
