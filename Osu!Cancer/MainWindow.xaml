@@ -11,7 +11,7 @@
         AllowsTransparency="True"
         WindowStyle="None"
         Background="Transparent"
-        Title="MainWindow" Height="3152.5" Width="1366" WindowStartupLocation="CenterScreen" WindowState="Maximized"
+        Title="MainWindow" Height="768" Width="1366" WindowStartupLocation="CenterScreen" WindowState="Maximized"
         
         >
     <Window.Resources>
@@ -443,10 +443,16 @@
                     <ColumnDefinition Width="75"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                
+                <TextBlock Text="{Binding ElementName=scroller, Path=VerticalOffset}" Foreground="White" Margin="0,41,0,0" Panel.ZIndex="1" TextAlignment="Center"/>
                 <Rectangle x:Name="SettingPanelBackground" HorizontalAlignment="Left" Fill="Black" Opacity="0.5" Width="500" Grid.RowSpan="2" Grid.ColumnSpan="2"></Rectangle>
                 <Rectangle Width="75" HorizontalAlignment="Left" Fill="Black" Grid.RowSpan="2"/>
-                <Grid x:Name="grdSettingIcon" Margin="0, 75, 430, 75" Grid.RowSpan="2">
+                <Grid x:Name="grdSettingIcon" Grid.Row="2">
+                    <Grid.Resources>
+                        <Style TargetType="Image">
+                            <Setter Property="Stretch" Value="Uniform"/>
+                            <Setter Property="Margin" Value="15"/>
+                        </Style>
+                    </Grid.Resources>
                     <Grid.RowDefinitions>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
@@ -457,12 +463,50 @@
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
+
+                    <Grid x:Name="SettingIcon1" MouseDown="Icon_ClickJumpToSetting">
+                        <Rectangle Margin="65,0,0,0" Fill="#E57288"/>
+                        <Image Source="{Binding SettingIconImage1}"/>
+                    </Grid>
+                    <Grid x:Name="SettingIcon2" MouseDown="Icon_ClickJumpToSetting" Grid.Row="1">
+                        <Rectangle Margin="65,0,0,0" Fill="#E57288"/>
+                        <Image Source="{Binding SettingIconImage2}"/>
+                    </Grid>
+                    <Grid x:Name="SettingIcon3" MouseDown="Icon_ClickJumpToSetting"  Grid.Row="2" >
+                        <Rectangle Margin="65,0,0,0" Fill="#E57288"/>
+                        <Image Source="{Binding SettingIconImage3}"/>
+                    </Grid>
+                    <Grid x:Name="SettingIcon4" MouseDown="Icon_ClickJumpToSetting" Grid.Row="3">
+                        <Rectangle Margin="65,0,0,0" Fill="#E57288"/>
+                        <Image Source="{Binding SettingIconImage4}"/>
+                    </Grid>
+                    <Grid x:Name="SettingIcon5" MouseDown="Icon_ClickJumpToSetting" Grid.Row="4">
+                        <Rectangle Margin="65,0,0,0" Fill="#E57288"/>
+                        <Image Source="{Binding SettingIconImage5}"/>
+                    </Grid>
+                    <Grid x:Name="SettingIcon6" MouseDown="Icon_ClickJumpToSetting" Grid.Row="5">
+                        <Rectangle Margin="65,0,0,0" Fill="#E57288"/>
+                        <Image Source="{Binding SettingIconImage6}"/>
+                    </Grid>
+                    <Grid x:Name="SettingIcon7" MouseDown="Icon_ClickJumpToSetting" Grid.Row="6">
+                        <Rectangle Margin="65,0,0,0" Fill="#E57288"/>
+                        <Image Source="{Binding SettingIconImage7}"/>
+                    </Grid>
+                    <Grid x:Name="SettingIcon8" MouseDown="Icon_ClickJumpToSetting" Grid.Row="7">
+                        <Rectangle Margin="65,0,0,0" Fill="#E57288"/>
+                        <Image Source="{Binding SettingIconImage8}"/>
+                    </Grid>
+                    <Grid x:Name="SettingIcon9" MouseDown="Icon_ClickJumpToSetting" Grid.Row="8">
+                        <Rectangle Margin="65,0,0,0" Fill="#E57288"/>
+                        <Image Source="{Binding SettingIconImage9}"/>
+                    </Grid>
                 </Grid>
                 <TextBlock Text="Options" Foreground="White" FontSize="36" TextAlignment="Center" Margin="100, 60, 100, 40" Grid.Column="1"/>
                 <TextBlock Text="Change the way osu! behaves" FontSize="24" TextAlignment="Center" Margin="50,100,50,0" Foreground="HotPink" Grid.Column="1"/>
 
-                <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
+                <ScrollViewer x:Name="scroller" Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" ScrollChanged="scroller_ScrollChanged">
                     <StackPanel Width="410">
                         <StackPanel.Resources>
                             <Style TargetType="TextBlock">
@@ -512,9 +556,9 @@
                                 </GroupBox>
                             </StackPanel>
                         </Grid>
-                        <Grid Height="984">
+                        <Grid Height="850">
                             <TextBlock Text="GRAPHICS" Style="{StaticResource SettingHeader}"/>
-                            <GroupBox Margin="0,50,0,810" Header="LAYOUT">
+                            <GroupBox Margin="0,50,0,680" Header="LAYOUT">
                                 <ListBox x:Name="LayoutListBox" Style="{StaticResource CustomListBoxSetting}">
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
                                         <StackPanel Orientation="Horizontal">
@@ -527,7 +571,7 @@
                                     </ListBoxItem>
                                 </ListBox>
                             </GroupBox>
-                            <GroupBox Header="DETAIL SETTING" Margin="0,210,0,425">
+                            <GroupBox Header="DETAIL SETTING" Margin="0,210,0,378">
                                 <ListBox Style="{StaticResource CustomListBoxSetting}">
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
                                         <ToggleButton Content="Snaking Slider" Style="{StaticResource CustomSettingToggleButton}" />
@@ -555,7 +599,7 @@
                                     </ListBoxItem>
                                 </ListBox>
                             </GroupBox>
-                            <GroupBox Header="MAIN MENU" Margin="0,590,0,156">
+                            <GroupBox Header="MAIN MENU" Margin="0,520,0,138">
                                 <ListBox Style="{StaticResource CustomListBoxSetting}">
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
                                         <ToggleButton Content="Snow" Style="{StaticResource CustomSettingToggleButton}"/>
@@ -580,7 +624,7 @@
                                     </ListBoxItem>
                                 </ListBox>
                             </GroupBox>
-                            <GroupBox Header="SONG SELECT" Margin="0,860,0,24">
+                            <GroupBox Header="SONG SELECT" Margin="0,750,0,0">
                                 <ToggleButton Content="Show thumbnail" Style="{StaticResource CustomSettingToggleButton}"/>
                             </GroupBox>
                         </Grid>

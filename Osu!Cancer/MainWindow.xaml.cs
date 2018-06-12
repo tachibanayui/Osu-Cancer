@@ -142,7 +142,10 @@ namespace Osu_Cancer
             imgOsuLogo.Margin = new Thickness(130);
             defaultLogoMargin = imgOsuLogo.Margin;
             osuCookieBehaviour = OsuCookieBehaviour.ClickToOpenTab;
-            
+            ChangeAllSettingIconUnlit(SettingIcon1);
+            SettingIcon1.Opacity = 1;
+            MessageBox.Show(scroller.VerticalOffset.ToString());
+
             //Add default margin to SelectionTab
             imgPlayTab.Tag = new EndAnimationPos(new Thickness(450, 155, 210, 515), new Thickness(490, 155, 170, 515));
             imgExitTab.Tag = new EndAnimationPos(new Thickness(450, 505, 210, 165), new Thickness(490, 505, 170, 165));
@@ -764,6 +767,7 @@ namespace Osu_Cancer
         }
         #endregion
 
+        #region Server Comunication Related
         private void btnConnectEP(object sender, RoutedEventArgs e)
         {
             string btnContent = (string)((Button)sender).Content;
@@ -839,7 +843,137 @@ namespace Osu_Cancer
             FileOperation.ByteArraytoFile(workingResources.BaseDir + @"Resources\UserInfo.cfg", buffer, receiveSize);
             workingResources.ReloadInformation();
         }
+        #endregion
 
-      
+        private void scroller_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            UIElement choosenElement = new UIElement();
+            UIElement choosenRectangle = new UIElement();
+            switch (scroller.VerticalOffset)
+            {
+                case Object a when (scroller.VerticalOffset < 384):
+                    LitSettingIcon(SettingIcon1);
+                    choosenElement = SettingIcon1;
+                    break;
+                case Object a when (scroller.VerticalOffset > 383 && scroller.VerticalOffset < 1248):
+                    LitSettingIcon(SettingIcon2);
+                    choosenElement = SettingIcon2;
+                    break;
+                case Object a when (scroller.VerticalOffset > 1247 && scroller.VerticalOffset < 1584):
+                    LitSettingIcon(SettingIcon3);
+                    choosenElement = SettingIcon3;
+                    break;
+                case Object a when (scroller.VerticalOffset > 1583 && scroller.VerticalOffset < 1920):
+                    LitSettingIcon(SettingIcon4);
+                    choosenElement = SettingIcon4;
+                    break;
+                case Object a when (scroller.VerticalOffset > 1919 && scroller.VerticalOffset < 2261):
+                    LitSettingIcon(SettingIcon5);
+                    choosenElement = SettingIcon5;
+                    break;
+                case Object a when (scroller.VerticalOffset > 2140):
+                    LitSettingIcon(SettingIcon6);
+                    choosenElement = SettingIcon6;
+                    break;
+            }
+            ChangeAllSettingIconUnlit(choosenElement);
+        }
+
+        private void LitSettingIcon(Grid settingIcon1)
+        {
+            settingIcon1.Opacity = 1;
+            Rectangle rec = (Rectangle)settingIcon1.Children[0];
+            rec.Opacity = 1;
+        }
+
+        private void ChangeAllSettingIconUnlit(UIElement oddOut)
+        {
+            AddFadeOutAnim(SettingIcon1, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon2, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon3, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon4, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon5, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon6, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon7, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon8, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon9, oddOut, 0.25, 0.8);
+        }
+
+        private void AddFadeOutAnim(UIElement target, UIElement oddOut, double interval, double fadeVal)
+        {
+            if (target == oddOut || target.Opacity == fadeVal)
+                return;
+
+            target.BeginAnimation(OpacityProperty, null);
+            DoubleAnimation fadeouAnimation = new DoubleAnimation(fadeVal, TimeSpan.FromSeconds(interval), FillBehavior.Stop);
+            fadeouAnimation.Completed += (s, e) => 
+            {
+                target.Opacity = fadeVal;
+                Grid targetGrid = (Grid)target;
+                Rectangle rec = (Rectangle)targetGrid.Children[0];
+                rec.Opacity = 0;
+            };
+            target.BeginAnimation(OpacityProperty, fadeouAnimation);
+        }
+        
+        private void Icon_ClickJumpToSetting(object sender, MouseButtonEventArgs e)
+        {
+            Grid target = (Grid)sender;
+
+            int nameID = int.Parse(target.Name.Substring(11));
+            switch (nameID)
+            {
+                case 1:
+                    ScrollAnimation(0);
+                    break;
+                case 2:
+                    ScrollAnimation(390);
+                    break;
+                case 3:
+                    ScrollAnimation(1260);
+                    break;
+                case 4:
+                    ScrollAnimation(1600);
+                    break;
+                case 5:
+                    ScrollAnimation(1950);
+                    break;
+                case 6:
+                    ScrollAnimation(2370);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        
+        private void ScrollAnimation(int scrollVal)
+        {
+            Thread worker;
+            
+            int value = 50;
+            int scrollval = 0;
+            Dispatcher.Invoke(() => {scrollval = (scrollVal - (int)scroller.VerticalOffset) / 50; });
+
+            if (scrollval < 0)
+            {
+                value = -50;
+                scrollval = Math.Abs(scrollval);
+            }
+
+
+            worker = new Thread(() =>
+            {
+                for (int i = 0; i < scrollval; i++)
+                {
+                    Dispatcher.Invoke(() => { scroller.ScrollToVerticalOffset(scroller.VerticalOffset + value); });
+                    Thread.Sleep(10);
+                }
+                return;
+            });
+
+            worker.Start();
+
+        }
     }
 }

@@ -22,14 +22,16 @@ namespace Osu_Cancer
         public Cons()
         {
             BaseDir = AppDomain.CurrentDomain.BaseDirectory;
+            Icons = new GameIcon(BaseDir);
             SetProperty();
         }
         /// <summary>
         /// Use a custom path to access resources
         /// </summary>
         /// <param name="defaultPath">A reources path</param>
-        public Cons(string defaultPath)
+        public Cons(string defaultPath, GameIcon icons)
         {
+            icons = Icons;
             BaseDir = defaultPath;
             SetProperty();
         }
@@ -43,6 +45,7 @@ namespace Osu_Cancer
             SkinsParentpath = BaseDir + @"Resources\Skins\";
             settingIcon = new List<BitmapImage>();
             IsSettingPanelOpen = false;
+            GetTextureInformation();
             GetAccountInformation();
             ScreenX = int.Parse(SystemParameters.PrimaryScreenWidth.ToString());
             ScreenY = int.Parse(SystemParameters.PrimaryScreenHeight.ToString());
@@ -51,13 +54,27 @@ namespace Osu_Cancer
             isShowPernamentlyInfo = true;
             MasterVolumeValue = 99;
             SongProgress = 50;
-            PlayTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\PlayTab.png";
-            ExitTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\ExitTab.png";
-            EditTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\EditTab.png";
-            OptionTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\OptionTab.png";
-            SoloTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\SoloTab.png";
-            MultiTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\MultiTab.png";
-            BackTab = @"F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\BackTab.png";
+            
+        }
+
+        private void GetTextureInformation()
+        {
+            PlayTab = Icons.PlayTab;
+            ExitTab = Icons.ExitTab;
+            EditTab = Icons.EditTab;
+            OptionTab = Icons.OptionTab;
+            SoloTab = Icons.SoloTab;
+            MultiTab = Icons.MultiTab;
+            BackTab = Icons.BackTab;
+            SettingIconImage1 = Icons.SettingGear;
+            SettingIconImage2 = Icons.SettingDisplay;
+            SettingIconImage3 = Icons.SettingCircle;
+            SettingIconImage4 = Icons.SettingSound;
+            SettingIconImage5 = Icons.SettingBrush;
+            SettingIconImage6 = Icons.SettingConsole;
+            SettingIconImage7 = Icons.SettingPencil;
+            SettingIconImage8 = Icons.SettingWorld;
+            SettingIconImage9 = Icons.SettingWrench;
         }
 
         private void GetAccountInformation()
@@ -77,7 +94,126 @@ namespace Osu_Cancer
         {
             GetAccountInformation();
         }
+        public GameIcon Icons { get; set; }
         public string BaseDir { get; set; }
+        private string settingIconImage1;
+        public string SettingIconImage1
+        {
+            get { return settingIconImage1; }
+            set
+            {
+                if(settingIconImage1 != value)
+                {
+                    settingIconImage1 = value;
+                    NotifyPropertyChanged("SettingIconImage1");
+                }
+            }
+        }
+
+        private string settingIconImage2;
+        public string SettingIconImage2
+        {
+            get { return settingIconImage2; }
+            set
+            {
+                if (settingIconImage2 != value)
+                {
+                    settingIconImage2 = value;
+                    NotifyPropertyChanged("SettingIconImage2");
+                }
+            }
+        }
+        private string settingIconImage3;
+        public string SettingIconImage3
+        {
+            get { return settingIconImage3; }
+            set
+            {
+                if (settingIconImage3 != value)
+                {
+                    settingIconImage3 = value;
+                    NotifyPropertyChanged("SettingIconImage3");
+                }
+            }
+        }
+        private string settingIconImage4;
+        public string SettingIconImage4
+        {
+            get { return settingIconImage4; }
+            set
+            {
+                if (settingIconImage4 != value)
+                {
+                    settingIconImage4 = value;
+                    NotifyPropertyChanged("SettingIconImage4");
+                }
+            }
+        }
+        private string settingIconImage5;
+        public string SettingIconImage5
+        {
+            get { return settingIconImage5; }
+            set
+            {
+                if (settingIconImage5 != value)
+                {
+                    settingIconImage5 = value;
+                    NotifyPropertyChanged("SettingIconImage5");
+                }
+            }
+        }
+        private string settingIconImage6;
+        public string SettingIconImage6
+        {
+            get { return settingIconImage6; }
+            set
+            {
+                if (settingIconImage6 != value)
+                {
+                    settingIconImage6 = value;
+                    NotifyPropertyChanged("SettingIconImage6");
+                }
+            }
+        }
+        private string settingIconImage7;
+        public string SettingIconImage7
+        {
+            get { return settingIconImage7; }
+            set
+            {
+                if (settingIconImage7 != value)
+                {
+                    settingIconImage7 = value;
+                    NotifyPropertyChanged("SettingIconImage7");
+                }
+            }
+        }
+        private string settingIconImage8;
+        public string SettingIconImage8
+        {
+            get { return settingIconImage8; }
+            set
+            {
+                if (settingIconImage8 != value)
+                {
+                    settingIconImage8 = value;
+                    NotifyPropertyChanged("SettingIconImage8");
+                }
+            }
+        }
+        private string settingIconImage9;
+        public string SettingIconImage9
+        {
+            get { return settingIconImage9; }
+            set
+            {
+                if (settingIconImage9 != value)
+                {
+                    settingIconImage9 = value;
+                    NotifyPropertyChanged("SettingIconImage9");
+                }
+            }
+        }
         private string logo;
         public string Logo {
             get { return logo; }
@@ -397,25 +533,31 @@ namespace Osu_Cancer
             Pause = BaseDir + "Pause.png";
             Window = BaseDir + "Window.png";
             Previous = BaseDir + "Previous.png";
-            SettingBrushLit = BaseDir + "SettingBrushLit.png";
-            SettingBrushUnlit = BaseDir + "SettingBrushUnlit.png";
-            SettingCircleLit = BaseDir + "SettingCircleLit.png";
-            SettingCircleUnlit = BaseDir + "SettingCircleUnlit.png";
-            SettingConsoleLit = BaseDir + "SettingConsoleLit.png";
-            SettingConsoleUnlit = BaseDir + "SettingConsoleUnlit.png";
-            SettingDisplayLit = BaseDir + "SettingDisplayLit.png";
-            SettingDisplayUnlit = BaseDir + "SettingDisplayUnlit.png";
-            SettingGearLit = BaseDir + "SettingGearLit.png";
-            SettingGearUnlit = BaseDir + "SettingGearUnlit.png";
-            SettingPencilLit = BaseDir + "SettingPencilLit.png";
-            SettingPencilUnlit = BaseDir + "SettingPencilUnlit.png";
-            SettingSoundLit = BaseDir + "SettingSoundLit.png";
-            SettingSoundUnlit = BaseDir + "SettingSoundUnlit.png";
-            SettingWorldLit = BaseDir + "SettingWorldLit.png";
-            SettingWorldUnlit = BaseDir + "SettingWorldUnlit.png";
-            SettingWrenchLit = BaseDir + "SettingWrenchLit.png";
-            SettingWrenchUnlit = BaseDir + "SettingWrenchUnlit.png";
+            SettingBrush = BaseDir + "SettingBrush.png";
+            SettingCircle = BaseDir + "SettingCircle.png";
+            SettingConsole = BaseDir + "SettingConsole.png";
+            SettingDisplay = BaseDir + "SettingDisplay.png";
+            SettingGear = BaseDir + "SettingGear.png";
+            SettingPencil = BaseDir + "SettingPencil.png";
+            SettingSound = BaseDir + "SettingSound.png";
+            SettingWorld = BaseDir + "SettingWorld.png";
+            SettingWrench = BaseDir + "SettingWrench.png";
+            PlayTab = BaseDir + "PlayTab.png";
+            ExitTab =  BaseDir + "ExitTab.png";
+            EditTab = BaseDir + "EditTab.png";
+            OptionTab = BaseDir + "OptionTab.png";
+            SoloTab =  BaseDir + "SoloTab.png";
+            MultiTab = BaseDir + "MultiTab.png";
+            BackTab = BaseDir + "BackTab.png";
         }
+        public string Logo { get; set; }
+        public string PlayTab { get; set; }
+        public string ExitTab { get; set; }
+        public string EditTab { get; set; }
+        public string OptionTab { get; set; }
+        public string SoloTab { get; set; }
+        public string MultiTab { get; set; }
+        public string BackTab { get; set; }
         public string BaseDir { get; set; }
         public string Previous { get; set; }
         public string Information { get; set; }
@@ -425,24 +567,15 @@ namespace Osu_Cancer
         public string Play { get; set; }
         public string Stop { get; set; }
         public string Window { get; set; }
-        public string SettingBrushLit { get; set; }
-        public string SettingBrushUnlit { get; set; }
-        public string SettingCircleLit { get; set; }
-        public string SettingCircleUnlit { get; set; }
-        public string SettingConsoleLit { get; set; }
-        public string SettingConsoleUnlit { get; set; }
-        public string SettingDisplayLit { get; set; }
-        public string SettingDisplayUnlit { get; set; }
-        public string SettingGearLit { get; set; }
-        public string SettingGearUnlit { get; set; }
-        public string SettingPencilLit { get; set; }
-        public string SettingPencilUnlit { get; set; }
-        public string SettingSoundLit { get; set; }
-        public string SettingSoundUnlit { get; set; }
-        public string SettingWorldLit { get; set; }
-        public string SettingWorldUnlit { get; set; }
-        public string SettingWrenchLit { get; set; }
-        public string SettingWrenchUnlit { get; set; }
+        public string SettingBrush { get; set; }
+        public string SettingCircle { get; set; }
+        public string SettingConsole { get; set; }
+        public string SettingDisplay { get; set; }
+        public string SettingGear { get; set; }
+        public string SettingPencil { get; set; }
+        public string SettingSound { get; set; }
+        public string SettingWorld { get; set; }
+        public string SettingWrench { get; set; }
     }
 
     public enum OsuSection
