@@ -78,13 +78,32 @@ namespace Osu_Cancer
         OsuCookieBehaviour osuCookieBehaviour;
         bool isPlayClickFirstTime = true;
         bool isMainMenuClickFirstTime = true;
+        Thread bouncingOsu;
+        ManualResetEvent wait = new ManualResetEvent(false);
+        bool isLogoBusy;
+        bool IsLogoBusy
+        {
+            get { return isLogoBusy; }
+            set
+            {
+                if (value == true)
+                {
+                    wait.Reset();
+                }
+                else
+                {
+                    wait.Set();
+                }
+            }
+        }
+        bool isOsuLogoMoving;
         #endregion
 
         public MainWindow()
-        {           
+        {
             InitializeComponent();
             scrollUpdateLog.ScrollToEnd();
-            DataContext = workingResources;      
+            DataContext = workingResources;
             imgOsuLogo.Opacity = 0;
             IconLib = new GameIcon(workingResources.BaseDir);
             pgbSong.DataContext = workingResources;
@@ -144,7 +163,7 @@ namespace Osu_Cancer
             osuCookieBehaviour = OsuCookieBehaviour.ClickToOpenTab;
             ChangeAllSettingIconUnlit(SettingIcon1);
             SettingIcon1.Opacity = 1;
-            MessageBox.Show(scroller.VerticalOffset.ToString());
+            OsuBouncingController(240);
 
             //Add default margin to SelectionTab
             imgPlayTab.Tag = new EndAnimationPos(new Thickness(450, 155, 210, 515), new Thickness(490, 155, 170, 515));
@@ -155,6 +174,9 @@ namespace Osu_Cancer
             imgMultiTab.Tag = new EndAnimationPos(new Thickness(460, 335, 200, 335), new Thickness(500, 335, 160, 335));
             imgBackTab.Tag = new EndAnimationPos(new Thickness(460, 440, 200, 230), new Thickness(500, 440, 160, 230));
         }
+
+
+
         private void HotkeyImplementing()
         {
             openSetting.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
@@ -181,7 +203,7 @@ namespace Osu_Cancer
         }
         private void ShowOverlayMessage(string text)
         {
-            if(isMessageOverlayHideIntervalActive)
+            if (isMessageOverlayHideIntervalActive)
                 messageOverlayHideInterval.Abort();
 
             HideOverlayMessage();
@@ -190,7 +212,8 @@ namespace Osu_Cancer
             OverlayMessage.Opacity = 1;
             DoubleAnimation expandAnimation = new DoubleAnimation(0, 50, TimeSpan.FromSeconds(0.1), FillBehavior.HoldEnd);
             OverlayMessage.BeginAnimation(HeightProperty, expandAnimation);
-            messageOverlayHideInterval = new Thread(() => {
+            messageOverlayHideInterval = new Thread(() =>
+            {
                 Thread.Sleep(1500);
                 Dispatcher.Invoke(HideOverlayMessage);
             });
@@ -198,7 +221,7 @@ namespace Osu_Cancer
             isMessageOverlayHideIntervalActive = true;
         }
         private void HideOverlayMessage()
-        { 
+        {
             OverlayMessage.Opacity = 0;
             OverlayMessage.BeginAnimation(OpacityProperty, null);
             OverlayMessage.BeginAnimation(HeightProperty, null);
@@ -269,16 +292,27 @@ namespace Osu_Cancer
         #region EventHandler related to Main Osu!
         private void imgOsuLogo_MouseEnter(object sender, MouseEventArgs e)
         {
-            if (currentSection != OsuSection.MainScreen)
+            if (currentSection != OsuSection.MainScreen || isOsuLogoMoving)
                 return;
-            ThicknessAnimation animation = new ThicknessAnimation(new Thickness(defaultLogoMargin.Left - 10, defaultLogoMargin.Top - 10, defaultLogoMargin.Right - 10, defaultLogoMargin.Bottom - 10), TimeSpan.FromSeconds(0.1), FillBehavior.HoldEnd);
-            imgOsuLogo.BeginAnimation( MarginProperty, animation);
+            isLogoBusy = true;
+            ThicknessAnimation animation = new ThicknessAnimation(new Thickness(defaultLogoMargin.Left - 10, defaultLogoMargin.Top - 10, defaultLogoMargin.Right - 10, defaultLogoMargin.Bottom - 10), TimeSpan.FromSeconds(0.1), FillBehavior.Stop);
+            animation.Completed += (s, a) => {
+                imgOsuLogo.Margin = new Thickness(defaultLogoMargin.Left - 10, defaultLogoMargin.Top - 10, defaultLogoMargin.Right - 10, defaultLogoMargin.Bottom - 10);
+                IsLogoBusy = false;
+            };
+            imgOsuLogo.BeginAnimation(MarginProperty, animation);
         }
         private void imgOsuLogo_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (currentSection != OsuSection.MainScreen)
+            if (currentSection != OsuSection.MainScreen || isOsuLogoMoving)
                 return;
-            ThicknessAnimation animation = new ThicknessAnimation(defaultLogoMargin, TimeSpan.FromSeconds(0.1), FillBehavior.HoldEnd);
+            IsLogoBusy = true;
+            ThicknessAnimation animation = new ThicknessAnimation(defaultLogoMargin, TimeSpan.FromSeconds(0.1), FillBehavior.Stop);
+            animation.Completed += (s, a) =>
+            {
+                imgOsuLogo.Margin = defaultLogoMargin;
+                IsLogoBusy = false;
+            };
             imgOsuLogo.BeginAnimation(MarginProperty, animation);
         }
         private void DynamicBGAction(object sender, MouseEventArgs e)
@@ -357,11 +391,20 @@ namespace Osu_Cancer
         }
         private void imgOsuLogo_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (osuCookieBehaviour == OsuCookieBehaviour.ClickToOpenTab)
+            if (osuCookieBehaviour == OsuCookieBehaviour.ClickToOpenTab && currentSection == OsuSection.MainScreen)
             {
+                IsLogoBusy = true;
+                isOsuLogoMoving = true;
+                    
                 Thickness slideVal = new Thickness(-105, 130, 400, 130);
 
                 ThicknessAnimation slide = new ThicknessAnimation(slideVal, TimeSpan.FromSeconds(0.35));
+                slide.Completed += (s, ee) => 
+                {
+                    isOsuLogoMoving = false;
+                    IsLogoBusy = false;
+                    imgOsuLogo_MouseEnter(this, e);
+                };
                 TabSlider();
 
                 imgOsuLogo.BeginAnimation(MarginProperty, slide);
@@ -501,6 +544,9 @@ namespace Osu_Cancer
         }
         private void ImgPlayTab_MouseLeave(object sender, MouseEventArgs e)
         {
+            if (currentSection != OsuSection.MainScreen)
+                return;
+
             Image img = sender as Image;
 
             img.BeginAnimation(MarginProperty, null);
@@ -564,6 +610,9 @@ namespace Osu_Cancer
         }
         private void ImgPlayTab_MouseEnter(object sender, MouseEventArgs e)
         {
+            if (currentSection != OsuSection.MainScreen)
+                return;
+
             Image img = (Image)sender;
             img.BeginAnimation(MarginProperty, null);
 
@@ -574,13 +623,137 @@ namespace Osu_Cancer
             animation.Completed += (object a, EventArgs w) => { ChangeTabImage(img, true); };
             img.BeginAnimation(MarginProperty, animation);
         }
+        private void scroller_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            UIElement choosenElement = new UIElement();
+            UIElement choosenRectangle = new UIElement();
+            switch (scroller.VerticalOffset)
+            {
+                case Object a when (scroller.VerticalOffset < 384):
+                    LitSettingIcon(SettingIcon1);
+                    choosenElement = SettingIcon1;
+                    break;
+                case Object a when (scroller.VerticalOffset > 383 && scroller.VerticalOffset < 1248):
+                    LitSettingIcon(SettingIcon2);
+                    choosenElement = SettingIcon2;
+                    break;
+                case Object a when (scroller.VerticalOffset > 1247 && scroller.VerticalOffset < 1584):
+                    LitSettingIcon(SettingIcon3);
+                    choosenElement = SettingIcon3;
+                    break;
+                case Object a when (scroller.VerticalOffset > 1583 && scroller.VerticalOffset < 1920):
+                    LitSettingIcon(SettingIcon4);
+                    choosenElement = SettingIcon4;
+                    break;
+                case Object a when (scroller.VerticalOffset > 1919 && scroller.VerticalOffset < 2261):
+                    LitSettingIcon(SettingIcon5);
+                    choosenElement = SettingIcon5;
+                    break;
+                case Object a when (scroller.VerticalOffset > 2140):
+                    LitSettingIcon(SettingIcon6);
+                    choosenElement = SettingIcon6;
+                    break;
+            }
+            ChangeAllSettingIconUnlit(choosenElement);
+        }
+        private void LitSettingIcon(Grid settingIcon1)
+        {
+            settingIcon1.Opacity = 1;
+            Rectangle rec = (Rectangle)settingIcon1.Children[0];
+            rec.Opacity = 1;
+        }
+        private void ChangeAllSettingIconUnlit(UIElement oddOut)
+        {
+            AddFadeOutAnim(SettingIcon1, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon2, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon3, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon4, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon5, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon6, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon7, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon8, oddOut, 0.25, 0.8);
+            AddFadeOutAnim(SettingIcon9, oddOut, 0.25, 0.8);
+        }
+        private void AddFadeOutAnim(UIElement target, UIElement oddOut, double interval, double fadeVal)
+        {
+            if (target == oddOut || target.Opacity == fadeVal)
+                return;
+
+            target.BeginAnimation(OpacityProperty, null);
+            DoubleAnimation fadeouAnimation = new DoubleAnimation(fadeVal, TimeSpan.FromSeconds(interval), FillBehavior.Stop);
+            fadeouAnimation.Completed += (s, e) =>
+            {
+                target.Opacity = fadeVal;
+                Grid targetGrid = (Grid)target;
+                Rectangle rec = (Rectangle)targetGrid.Children[0];
+                rec.Opacity = 0;
+            };
+            target.BeginAnimation(OpacityProperty, fadeouAnimation);
+        }
+        private void Icon_ClickJumpToSetting(object sender, MouseButtonEventArgs e)
+        {
+            Grid target = (Grid)sender;
+
+            int nameID = int.Parse(target.Name.Substring(11));
+            switch (nameID)
+            {
+                case 1:
+                    ScrollAnimation(0);
+                    break;
+                case 2:
+                    ScrollAnimation(490);
+                    break;
+                case 3:
+                    ScrollAnimation(1290);
+                    break;
+                case 4:
+                    ScrollAnimation(1630);
+                    break;
+                case 5:
+                    ScrollAnimation(1980);
+                    break;
+                case 6:
+                    ScrollAnimation(2370);
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void ScrollAnimation(int scrollVal)
+        {
+            Thread worker;
+
+            int value = 50;
+            int scrollval = 0;
+            Dispatcher.Invoke(() => { scrollval = (scrollVal - (int)scroller.VerticalOffset) / 50; });
+
+            if (scrollval < 0)
+            {
+                value = -50;
+                scrollval = Math.Abs(scrollval);
+            }
+
+
+            worker = new Thread(() =>
+            {
+                for (int i = 0; i < scrollval; i++)
+                {
+                    Dispatcher.Invoke(() => { scroller.ScrollToVerticalOffset(scroller.VerticalOffset + value); });
+                    Thread.Sleep(10);
+                }
+                return;
+            });
+
+            worker.Start();
+
+        }
         #endregion
 
         #region Setting Related
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             OpenSettingPanel();
-        }   
+        }
         private void CommandBinding_Executed_1(object sender, ExecutedRoutedEventArgs e)
         {
             if (!workingResources.IsSettingPanelOpen)
@@ -649,7 +822,7 @@ namespace Osu_Cancer
         {
             LastSongIndex--;
             BGMPlayer.Source = new Uri(beatmaps[LastSongIndex].GroupPath + @"\Background.mp3");
-            workingResources.Nowplaying =  beatmaps[LastSongIndex].Artist + " - " + beatmaps[LastSongIndex].SongName;
+            workingResources.Nowplaying = beatmaps[LastSongIndex].Artist + " - " + beatmaps[LastSongIndex].SongName;
             SongTrans();
             ShowOverlayMessage("<< Prev");
             BGMPlayer.Play();
@@ -693,7 +866,8 @@ namespace Osu_Cancer
         {
             if (isTempThreadRunning)
                 TempShowSongInfo.Abort();
-            TempShowSongInfo = new Thread(() => {
+            TempShowSongInfo = new Thread(() =>
+            {
                 Thread.Sleep(5000);
                 try
                 {
@@ -736,8 +910,15 @@ namespace Osu_Cancer
             workingResources.Nowplaying = beatmaps[LastSongIndex].Artist + " - " + beatmaps[LastSongIndex].SongName;
             SongTrans();
             BackgroundSlide();
+            ChnageBPM();
 
         }
+        private void ChnageBPM()
+        {
+            bouncingOsu.Abort();
+            OsuBouncingController(beatmaps[lastSongIndex].BPM);
+        }
+
         private void SongTrans()
         {
             if (NowplayingTextPanel.Visibility == Visibility.Collapsed)
@@ -762,7 +943,7 @@ namespace Osu_Cancer
         }
         private void AccPnlUngrowing(object sender, MouseEventArgs e)
         {
-            DoubleAnimation FadeOut = new DoubleAnimation(0.15,0, TimeSpan.FromSeconds(0.2), FillBehavior.HoldEnd);
+            DoubleAnimation FadeOut = new DoubleAnimation(0.15, 0, TimeSpan.FromSeconds(0.2), FillBehavior.HoldEnd);
             AccountPanelOverlay.BeginAnimation(OpacityProperty, FadeOut);
         }
         #endregion
@@ -783,7 +964,7 @@ namespace Osu_Cancer
                 string strIPAdress = txbEndPoint.Text.Split(':')[0];
                 int port = int.Parse(txbEndPoint.Text.Split(':')[1]);
                 serverIP = IPAddress.Parse(strIPAdress);
-                serverEP = new IPEndPoint( serverIP, port);
+                serverEP = new IPEndPoint(serverIP, port);
             }
             catch
             {
@@ -804,15 +985,15 @@ namespace Osu_Cancer
             SocketOpreation socketOpreation = (SocketOpreation)ar.AsyncState;
             Socket socket = socketOpreation.Socket;
             Button btn = (Button)socketOpreation.State;
-           
+
             Dispatcher.Invoke(() => { btn.Content = "Connected!"; });
             try { socket.EndConnect(ar); }
-            catch { return; }    
+            catch { return; }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if(workingResources.CurrentSocket == null)
+            if (workingResources.CurrentSocket == null)
             {
                 ShowOverlayMessage("You not connect to any server! Online Feature not work without server!");
                 return;
@@ -828,13 +1009,13 @@ namespace Osu_Cancer
             socket.EndSend(ar);
             byte[] buffer = new byte[1024];
             int receiveSize = 0;
-            try {receiveSize = socket.Receive(buffer); }
-            catch(Exception e)
+            try { receiveSize = socket.Receive(buffer); }
+            catch (Exception e)
             {
                 FileOperation.ExceptionHandle(e, "Server Disconnected!");
             }
             string receivedString = Encoding.Default.GetString(buffer, 0, receiveSize);
-            if(receivedString == "WrongPassword" || receivedString == "WrongUsername")
+            if (receivedString == "WrongPassword" || receivedString == "WrongUsername")
             {
                 Dispatcher.Invoke(() => { ShowOverlayMessage("Failed to Login:" + receivedString); });
                 return;
@@ -845,135 +1026,35 @@ namespace Osu_Cancer
         }
         #endregion
 
-        private void scroller_ScrollChanged(object sender, ScrollChangedEventArgs e)
+
+
+        private void OsuBouncingController(int bpm)
         {
-            UIElement choosenElement = new UIElement();
-            UIElement choosenRectangle = new UIElement();
-            switch (scroller.VerticalOffset)
-            {
-                case Object a when (scroller.VerticalOffset < 384):
-                    LitSettingIcon(SettingIcon1);
-                    choosenElement = SettingIcon1;
-                    break;
-                case Object a when (scroller.VerticalOffset > 383 && scroller.VerticalOffset < 1248):
-                    LitSettingIcon(SettingIcon2);
-                    choosenElement = SettingIcon2;
-                    break;
-                case Object a when (scroller.VerticalOffset > 1247 && scroller.VerticalOffset < 1584):
-                    LitSettingIcon(SettingIcon3);
-                    choosenElement = SettingIcon3;
-                    break;
-                case Object a when (scroller.VerticalOffset > 1583 && scroller.VerticalOffset < 1920):
-                    LitSettingIcon(SettingIcon4);
-                    choosenElement = SettingIcon4;
-                    break;
-                case Object a when (scroller.VerticalOffset > 1919 && scroller.VerticalOffset < 2261):
-                    LitSettingIcon(SettingIcon5);
-                    choosenElement = SettingIcon5;
-                    break;
-                case Object a when (scroller.VerticalOffset > 2140):
-                    LitSettingIcon(SettingIcon6);
-                    choosenElement = SettingIcon6;
-                    break;
-            }
-            ChangeAllSettingIconUnlit(choosenElement);
+            bouncingOsu = new Thread(BouncingLogo);
+            bouncingOsu.Start(bpm);
         }
 
-        private void LitSettingIcon(Grid settingIcon1)
+        private void BouncingLogo(object objBpm)
         {
-            settingIcon1.Opacity = 1;
-            Rectangle rec = (Rectangle)settingIcon1.Children[0];
-            rec.Opacity = 1;
-        }
-
-        private void ChangeAllSettingIconUnlit(UIElement oddOut)
-        {
-            AddFadeOutAnim(SettingIcon1, oddOut, 0.25, 0.8);
-            AddFadeOutAnim(SettingIcon2, oddOut, 0.25, 0.8);
-            AddFadeOutAnim(SettingIcon3, oddOut, 0.25, 0.8);
-            AddFadeOutAnim(SettingIcon4, oddOut, 0.25, 0.8);
-            AddFadeOutAnim(SettingIcon5, oddOut, 0.25, 0.8);
-            AddFadeOutAnim(SettingIcon6, oddOut, 0.25, 0.8);
-            AddFadeOutAnim(SettingIcon7, oddOut, 0.25, 0.8);
-            AddFadeOutAnim(SettingIcon8, oddOut, 0.25, 0.8);
-            AddFadeOutAnim(SettingIcon9, oddOut, 0.25, 0.8);
-        }
-
-        private void AddFadeOutAnim(UIElement target, UIElement oddOut, double interval, double fadeVal)
-        {
-            if (target == oddOut || target.Opacity == fadeVal)
-                return;
-
-            target.BeginAnimation(OpacityProperty, null);
-            DoubleAnimation fadeouAnimation = new DoubleAnimation(fadeVal, TimeSpan.FromSeconds(interval), FillBehavior.Stop);
-            fadeouAnimation.Completed += (s, e) => 
+            int bpm = (int)objBpm;
+            while (true)
             {
-                target.Opacity = fadeVal;
-                Grid targetGrid = (Grid)target;
-                Rectangle rec = (Rectangle)targetGrid.Children[0];
-                rec.Opacity = 0;
-            };
-            target.BeginAnimation(OpacityProperty, fadeouAnimation);
-        }
-        
-        private void Icon_ClickJumpToSetting(object sender, MouseButtonEventArgs e)
-        {
-            Grid target = (Grid)sender;
+                Thickness baseElementMargin = new Thickness();
+                Dispatcher.Invoke(() => { baseElementMargin = imgOsuLogo.Margin; });
+                int step = 60000 / (bpm * 2);
 
-            int nameID = int.Parse(target.Name.Substring(11));
-            switch (nameID)
-            {
-                case 1:
-                    ScrollAnimation(0);
-                    break;
-                case 2:
-                    ScrollAnimation(390);
-                    break;
-                case 3:
-                    ScrollAnimation(1260);
-                    break;
-                case 4:
-                    ScrollAnimation(1600);
-                    break;
-                case 5:
-                    ScrollAnimation(1950);
-                    break;
-                case 6:
-                    ScrollAnimation(2370);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        
-        private void ScrollAnimation(int scrollVal)
-        {
-            Thread worker;
-            
-            int value = 50;
-            int scrollval = 0;
-            Dispatcher.Invoke(() => {scrollval = (scrollVal - (int)scroller.VerticalOffset) / 50; });
-
-            if (scrollval < 0)
-            {
-                value = -50;
-                scrollval = Math.Abs(scrollval);
-            }
-
-
-            worker = new Thread(() =>
-            {
-                for (int i = 0; i < scrollval; i++)
+                for (int i = 0; i <= 10; i++)
                 {
-                    Dispatcher.Invoke(() => { scroller.ScrollToVerticalOffset(scroller.VerticalOffset + value); });
-                    Thread.Sleep(10);
+                    Dispatcher.Invoke(() => { imgOsuLogo.Margin = new Thickness(baseElementMargin.Left + i, baseElementMargin.Top + i, baseElementMargin.Right + i, baseElementMargin.Bottom + i); });
+                    Thread.Sleep(step / 10);
+
+                    if (IsLogoBusy)
+                        wait.WaitOne();
                 }
-                return;
-            });
 
-            worker.Start();
-
+                Dispatcher.Invoke(() => { imgOsuLogo.Margin = baseElementMargin; });
+                Thread.Sleep(step);
+            }
         }
     }
 }

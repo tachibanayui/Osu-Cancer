@@ -170,7 +170,6 @@
                             <TextBox Visibility="Collapsed" HorizontalAlignment="Left" Margin="3,3,23,3" x:Name="PART_EditableTextBox" Style="{x:Null}" VerticalAlignment="Center" Focusable="True" Background="Transparent" IsReadOnly="{TemplateBinding IsReadOnly}" BorderBrush="Transparent">
                                 <TextBox.Template>
                                     <ControlTemplate TargetType="{x:Type TextBox}">
-                                        <!-- This must be named as PART_ContentHost -->
                                         <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}"/>
                                     </ControlTemplate>
                                 </TextBox.Template>
