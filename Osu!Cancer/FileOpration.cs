@@ -94,6 +94,19 @@ namespace Osu_Cancer
                 return "Can Parsing Setting From The Resources!";
             }
         }
+
+        public static void SetSettingValueToFile(string filePath, string settingName, string settingValue)
+        {
+            string orginalFile = FileToString(filePath, EncodingType.UTF8);
+            string beginCut = orginalFile.Substring(0, orginalFile.IndexOf(settingName));
+            string settingNameCut = settingName + ":";
+            string strHeadless = orginalFile.Substring(orginalFile.IndexOf(settingName));
+            string endCut = orginalFile.Substring((beginCut + strHeadless.Split('\r')[0]).Length);
+
+            string rebuildString = beginCut + settingNameCut + settingValue + endCut;
+            byte[] fileByte = Encoding.Default.GetBytes(rebuildString);
+            ByteArraytoFile(filePath, fileByte, fileByte.Length);
+        }
        
     }
 

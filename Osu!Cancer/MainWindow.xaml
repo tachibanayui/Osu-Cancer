@@ -12,7 +12,7 @@
         WindowStyle="None"
         Background="Transparent"
         Title="MainWindow" Height="768" Width="1366" WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        
+        Closing="GameClosePrepare"
         >
     <Window.Resources>
         <Style TargetType="GroupBox">
@@ -712,19 +712,19 @@
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Master: " Style="{StaticResource ContentSettingText}"/>
-                                            <Slider Width="300" Style="{StaticResource SettingSlider }"/>
+                                            <Slider Width="300" Style="{StaticResource SettingSlider }" Maximum="100" Value="{Binding MasterVolumeValue}"/>
                                         </StackPanel>
                                     </ListBoxItem>
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Music: " Style="{StaticResource ContentSettingText}"/>
-                                            <Slider Width="305" Style="{StaticResource SettingSlider}"/>
+                                            <Slider Width="305" Style="{StaticResource SettingSlider}" Maximum="100" Value="{Binding EffectVolumeValue}"/>
                                         </StackPanel>
                                     </ListBoxItem>
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Effect: " Style="{StaticResource ContentSettingText}"/>
-                                            <Slider Width="310" Style="{StaticResource SettingSlider}"/>
+                                            <Slider Width="310" Style="{StaticResource SettingSlider}" Maximum="100" Value="{Binding MusicVolumeValue}"/>
                                         </StackPanel>
                                     </ListBoxItem>
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
@@ -855,7 +855,7 @@
                 </ComboBox>
             </Grid>
             <!--Volume Changer-->
-            <Canvas x:Name="VolumeMixer" Margin="0,0,50,50" Width="300" Height="250" VerticalAlignment="Bottom" HorizontalAlignment="Right" Visibility="Visible">
+            <Canvas x:Name="VolumeMixer" Margin="0,0,50,50" Width="300" Height="250" VerticalAlignment="Bottom" HorizontalAlignment="Right" Visibility="Collapsed">
                 <Grid Width="167" Height="167" Canvas.Left="133" Canvas.Top="83">
                     <Ellipse Stroke="#11414F" StrokeThickness="1" Opacity="0.8" Fill="Black"/>
                     <ed:Arc Stretch="None" Margin="15" StrokeThickness="10" Stroke="#37484E" EndAngle="360"/>

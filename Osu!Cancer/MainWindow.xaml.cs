@@ -80,6 +80,7 @@ namespace Osu_Cancer
         bool isMainMenuClickFirstTime = true;
         Thread bouncingOsu;
         ManualResetEvent wait = new ManualResetEvent(false);
+        ManualResetEvent pause = new ManualResetEvent(true);
         bool isLogoBusy;
         bool IsLogoBusy
         {
@@ -472,17 +473,13 @@ namespace Osu_Cancer
                 imgOptionTab.MouseDown += (object sender, MouseButtonEventArgs e) => { OpenSettingPanel(); };
                 imgExitTab.MouseDown += (object sender, MouseButtonEventArgs e) =>
                 {
-                    media.Source = new Uri(workingResources.BaseDir + @"Resources\Default Audio\Goodbye.wav");
-                    windowCurtain.Visibility = Visibility.Visible;
-                    DoubleAnimation doubleAnimation = new DoubleAnimation(1, TimeSpan.FromSeconds(1.25));
-                    doubleAnimation.Completed += (object sendeer, EventArgs ee) => { Environment.Exit(0); };
-                    media.Play();
-                    windowCurtain.BeginAnimation(OpacityProperty, doubleAnimation);
+                    PrepareGameClose();
                 };
                 imgEditTab.MouseDown += (object sender, MouseButtonEventArgs e) => { ShowOverlayMessage("Not avaiable! Please try later version"); };
                 isMainMenuClickFirstTime = false;
             }
         }
+
         private void ImgPlayTab_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Image img = (Image)sender;
@@ -809,6 +806,7 @@ namespace Osu_Cancer
                         else if (i == 10)
                             Dispatcher.Invoke(() => { BackLight.Opacity = 0; });
                     }
+                    pause.WaitOne();
 
                     if (IsLogoBusy)
                         wait.WaitOne();
@@ -865,10 +863,12 @@ namespace Osu_Cancer
         {
             BGMPlayer.Pause();
             workingResources.IsBGMPause = true;
+            pause.Reset();
             ShowOverlayMessage("Pause");
         }
         private void PlayClick(object sender, MouseButtonEventArgs e)
         {
+            pause.Set();
             if (workingResources.IsBGMPause)
                 BGMPlayer.Play();
             else
@@ -883,6 +883,7 @@ namespace Osu_Cancer
         {
             BGMPlayer.Stop();
             workingResources.IsBGMPause = true;
+            pause.Reset();
             ShowOverlayMessage("Stop Playing");
         }
         private void NextClick(object sender, MouseButtonEventArgs e)
@@ -1099,8 +1100,23 @@ namespace Osu_Cancer
 
 
 
+
         #endregion
 
-       
+        private void GameClosePrepare(object sender, CancelEventArgs e)
+        {
+            PrepareGameClose();
+        }
+
+        private void PrepareGameClose()
+        {
+            workingResources.SaveSetting();
+            media.Source = new Uri(workingResources.BaseDir + @"Resources\Default Audio\Goodbye.wav");
+            windowCurtain.Visibility = Visibility.Visible;
+            DoubleAnimation doubleAnimation = new DoubleAnimation(1, TimeSpan.FromSeconds(1.25));
+            doubleAnimation.Completed += (object sendeer, EventArgs ee) => { Environment.Exit(0); };
+            media.Play();
+            windowCurtain.BeginAnimation(OpacityProperty, doubleAnimation);
+        }
     }
 }

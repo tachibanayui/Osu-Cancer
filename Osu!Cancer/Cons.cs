@@ -52,9 +52,45 @@ namespace Osu_Cancer
             IsBGMPause = false;
             NowplayingLength = 366;
             isShowPernamentlyInfo = true;
-            MasterVolumeValue = 100;
+            GetUserSetting();
             SongProgress = 50;
             
+        }
+
+        private void GetUserSetting()
+        {
+            string settingPath = BaseDir + @"Resources\setting.cfg";
+            try
+            {
+                MasterVolumeValue = int.Parse(FileOperation.GetSettingValueFromFile(settingPath, "MasterVolume"));
+                EffectVolumeValue = int.Parse(FileOperation.GetSettingValueFromFile(settingPath, "EffectVolume"));
+                MusicVolumeValue = int.Parse(FileOperation.GetSettingValueFromFile(settingPath, "MusicVolume"));
+            }
+            catch (Exception e)
+            {
+                MessageBoxResult result = MessageBox.Show("Unable to load setting! Would U like to restore default Setting? Detail Problem: \n" + e.ToString(), "Opps Error X.X", MessageBoxButton.YesNo );
+                if (result == MessageBoxResult.Yes)
+                {
+                    string output = FileOperation.FileToString(BaseDir + @"Resources\defaultSetting.cfg", EncodingType.UTF8);
+                    if (output == "Fail to Gain Access, Pls Close program that use this resources!")
+                    {
+                        MessageBox.Show("Backup Setting not found or corrupted! Please re-install the game!", "Game Failure (X . X)");
+                        Environment.Exit(-1);
+                    }
+                    byte[] recover = Encoding.Default.GetBytes(output);
+                    FileOperation.ByteArraytoFile(BaseDir + @"Resources\setting.cfg", recover, recover.Length);
+                    GetUserSetting();
+                    return;
+                }
+            }
+        }
+
+        public void SaveSetting()
+        {
+            string settingPath = BaseDir + @"Resources\setting.cfg";
+            FileOperation.SetSettingValueToFile(settingPath, "MasterVolume", MasterVolumeValue.ToString());
+            FileOperation.SetSettingValueToFile(settingPath, "EffectVolume", EffectVolumeValue.ToString());
+            FileOperation.SetSettingValueToFile(settingPath, "MusicVolume", MusicVolumeValue.ToString());
         }
 
         private void GetTextureInformation()
@@ -478,6 +514,7 @@ namespace Osu_Cancer
                     _MasterVolumeValue = value;
                     MasterVolumeEndAngle = _MasterVolumeValue * 3.6;
                     MasterVolumeString = _MasterVolumeValue + "%";
+                    NotifyPropertyChanged("MasterVolumeValue");
                 }               
             }
         }
@@ -492,6 +529,7 @@ namespace Osu_Cancer
                     _EffectVolumeValue = value;
                     EffectVolumeEndAngle = _EffectVolumeValue * 3.6;
                     EffectVolumeString = _EffectVolumeValue + "%";
+                    NotifyPropertyChanged("EffectVolumeValue");
                 }
             }
         }
@@ -506,6 +544,7 @@ namespace Osu_Cancer
                     _MusicVolumeValue = value;
                     MusicVolumeEndAngle = _MusicVolumeValue * 3.6;
                     MusicVolumeString = _MusicVolumeValue + "%";
+                    NotifyPropertyChanged("EffectVolumeValue");
                 }
             }
         }
