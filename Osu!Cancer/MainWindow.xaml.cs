@@ -332,6 +332,7 @@ namespace Osu_Cancer
             if (currentSection == OsuSection.PreLoad || workingResources.IsSettingPanelOpen)
                 return;
 
+
             if (isAwaitVolumeGaugeRunning)
             {
                 _volumeGauge.Abort();
@@ -351,14 +352,37 @@ namespace Osu_Cancer
             }
 
             if (e.Delta > 0)
-                workingResources.MasterVolumeValue += 5;
+            {
+                if(EffectVolumeGauge.IsMouseOver)
+                    workingResources.EffectVolumeValue += 5;
+                else if(MusicVolumeGauge.IsMouseOver)
+                    workingResources.MusicVolumeValue += 5;
+                else
+                    workingResources.MasterVolumeValue += 5;
+            }
             else
-                workingResources.MasterVolumeValue -= 5;
+            {
+                if (EffectVolumeGauge.IsMouseOver)
+                    workingResources.EffectVolumeValue -= 5;
+                else if (MusicVolumeGauge.IsMouseOver)
+                    workingResources.MusicVolumeValue -= 5;
+                else
+                    workingResources.MasterVolumeValue -= 5;
+            }
 
             CountDownFadeOutVolume();
             _volumeGauge.Start();
             isAwaitVolumeGaugeRunning = true;
         }
+
+        private bool IsEffectMusicVolumeMouseWheel()
+        {
+            if (EffectVolumeGauge.IsMouseOver || MusicVolumeGauge.IsMouseOver)
+                return true;
+            else
+                return false;
+        }
+
         private void CountDownFadeOutVolume()
         {
             try
@@ -741,6 +765,61 @@ namespace Osu_Cancer
             worker.Start();
 
         }
+        private void OsuBouncingController(int bpm)
+        {
+            bouncingOsu = new Thread(BouncingLogo);
+            bouncingOsu.Start(bpm);
+        }
+
+        private void ChangeSongBPMRelatedEffect(int bpm)
+        {
+            bouncingOsu.Abort();
+            OsuBouncingController(bpm);
+        }
+
+        private void BouncingLogo(object objBpm)
+        {
+            int bpm = (int)objBpm;
+            while (true)
+            {
+                Thickness baseElementMargin = new Thickness();
+                Dispatcher.Invoke(() => { baseElementMargin = imgOsuLogo.Margin; });
+                int step = 60000 / (bpm * 2);
+                bool isIncrease = true;
+
+                for (int i = 0; i <= 10; i++)
+                {
+                    Dispatcher.Invoke(() => { imgOsuLogo.Margin = new Thickness(baseElementMargin.Left + i, baseElementMargin.Top + i, baseElementMargin.Right + i, baseElementMargin.Bottom + i); });
+                    Thread.Sleep(step / 10);
+                    if (isIncrease)
+                    {
+                        if (i == 3)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.3; });
+                        else if (i == 6)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.4; });
+                        else if (i == 10)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.5; });
+                    }
+                    else
+                    {
+                        if (i == 3)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.4; });
+                        else if (i == 6)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.3; });
+                        else if (i == 10)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0; });
+                    }
+
+                    if (IsLogoBusy)
+                        wait.WaitOne();
+                }
+
+                Dispatcher.Invoke(() => { imgOsuLogo.Margin = baseElementMargin; });
+                Thread.Sleep(step);
+                isIncrease = !isIncrease;
+
+            }
+        }
         #endregion
 
         #region Setting Related
@@ -1017,64 +1096,11 @@ namespace Osu_Cancer
             FileOperation.ByteArraytoFile(workingResources.BaseDir + @"Resources\UserInfo.cfg", buffer, receiveSize);
             workingResources.ReloadInformation();
         }
+
+
+
         #endregion
 
-
-
-        private void OsuBouncingController(int bpm)
-        {
-            bouncingOsu = new Thread(BouncingLogo);
-            bouncingOsu.Start(bpm);
-        }
-
-        private void ChangeSongBPMRelatedEffect(int bpm)
-        {
-            bouncingOsu.Abort();
-            OsuBouncingController(bpm);
-        }
-
-        private void BouncingLogo(object objBpm)
-        {
-            int bpm = (int)objBpm;
-            while (true)
-            {
-                Thickness baseElementMargin = new Thickness();
-                Dispatcher.Invoke(() => { baseElementMargin = imgOsuLogo.Margin; });
-                int step = 60000 / (bpm * 2);
-                bool isIncrease = true;
-
-                for (int i = 0; i <= 10; i++)
-                {
-                    Dispatcher.Invoke(() => { imgOsuLogo.Margin = new Thickness(baseElementMargin.Left + i, baseElementMargin.Top + i, baseElementMargin.Right + i, baseElementMargin.Bottom + i); });
-                    Thread.Sleep(step / 10);
-                    if (isIncrease)
-                    {
-                        if (i == 3)
-                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.3; });
-                        else if (i == 6)
-                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.4; });
-                        else if (i == 10)
-                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.5; });
-                    }
-                    else
-                    {
-                        if (i == 3)
-                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.4; });
-                        else if (i == 6)
-                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.3; });
-                        else if (i == 10)
-                            Dispatcher.Invoke(() => { BackLight.Opacity = 0; });
-                    }
-
-                    if (IsLogoBusy)
-                        wait.WaitOne();
-                }
-
-                Dispatcher.Invoke(() => { imgOsuLogo.Margin = baseElementMargin; });
-                Thread.Sleep(step);
-                isIncrease = !isIncrease;
-                
-            }
-        }
+       
     }
 }

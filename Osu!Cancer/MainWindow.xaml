@@ -862,13 +862,13 @@
                     <ed:Arc Stretch="None" Margin="15" StrokeThickness="10" Stroke="White" EndAngle="{Binding MasterVolumeEndAngle}"/>
                     <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding MasterVolumeString}" Foreground="White" FontSize="24"/>
                 </Grid>
-                <Grid Width="75" Height="75" Canvas.Top="75" Canvas.Left="50">
+                <Grid x:Name="EffectVolumeGauge" Width="75" Height="75" Canvas.Top="75" Canvas.Left="50">
                     <Ellipse Stroke="#11414F" StrokeThickness="1" Opacity="0.8" Fill="Black"/>
                     <ed:Arc Stretch="None" Margin="10" StrokeThickness="5" Stroke="#37484E" EndAngle="360"/>
                     <ed:Arc Stretch="None" Margin="10" StrokeThickness="5" Stroke="White" EndAngle="{Binding EffectVolumeEndAngle}"/>
                     <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" Text="{Binding EffectVolumeString}" Foreground="White" FontSize="18"/>
                 </Grid>
-                <Grid Width="75" Height="75" Canvas.Left="125">
+                <Grid x:Name="MusicVolumeGauge" Width="75" Height="75" Canvas.Left="125">
                     <Ellipse Stroke="#11414F" StrokeThickness="1" Opacity="0.8" Fill="Black"/>
                     <ed:Arc Stretch="None" Margin="10" StrokeThickness="5" Stroke="#37484E" EndAngle="360"/>
                     <ed:Arc Stretch="None" Margin="10" StrokeThickness="5" Stroke="White" EndAngle="{Binding MusicVolumeEndAngle}"/>
