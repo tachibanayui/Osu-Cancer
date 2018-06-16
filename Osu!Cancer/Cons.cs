@@ -52,7 +52,7 @@ namespace Osu_Cancer
             IsBGMPause = false;
             NowplayingLength = 366;
             isShowPernamentlyInfo = true;
-            MasterVolumeValue = 99;
+            MasterVolumeValue = 100;
             SongProgress = 50;
             
         }
@@ -453,66 +453,144 @@ namespace Osu_Cancer
                 }
             }
         }
+
         #region Volume
-        private double _BGMVolume;
-        public double BGMVolume
+        private int _MasterVolumeValue;
+        private int _EffectVolumeValue;
+        private int _MusicVolumeValue;
+
+        private double _MasterVolumeEndAngle;
+        private double _EffectVolumeEndAngle;
+        private double _MusicVolumeEndAngle;
+
+        private string _MasterVolumeString;
+        private string _EffectVolumeString;
+        private string _MusicVolumeString;
+
+        //Below is only for notifying Property
+        public int MasterVolumeValue
         {
-            get { return _BGMVolume; }
+            get { return _MasterVolumeValue; }
             set
             {
-                if(_BGMVolume != value)
+                if(value <= 100 && value >= 0)
                 {
-                    _BGMVolume = value;
-                    NotifyPropertyChanged("BGMVolume");
+                    _MasterVolumeValue = value;
+                    MasterVolumeEndAngle = _MasterVolumeValue * 3.6;
+                    MasterVolumeString = _MasterVolumeValue + "%";
+                }               
+            }
+        }
+
+        public int EffectVolumeValue
+        {
+            get { return _EffectVolumeValue; }
+            set
+            {
+                if (value <= 100 && value >= 0)
+                {
+                    _EffectVolumeValue = value;
+                    EffectVolumeEndAngle = _EffectVolumeValue * 3.6;
+                    EffectVolumeString = _EffectVolumeValue + "%";
                 }
             }
         }
-        public double MasterVolumeValue
+
+        public int MusicVolumeValue
         {
-            get { return masterVolumeValue; }
+            get { return _MusicVolumeValue; }
             set
             {
-                if(masterVolumeValue != value && value > 0 && value < 100)
+                if (value <= 100 && value >= 0)
                 {
-                    masterVolumeValue = value;
-                    MasterVolumePathVal = FileOperation.CreateArc(61.5, masterVolumeValue * 3.6);
-                    MasterVolumeStringIndicator = masterVolumeValue + "%";
-                    BGMVolume = masterVolumeValue / 100;
-                }
-            }
-        }
-        private double masterVolumeValue;
-        public Geometry MasterVolumePathVal
-        {
-            get { return masterVolumePathVal; }
-            set
-            {
-                if (masterVolumePathVal != value)
-                {
-                    masterVolumePathVal = value;
-                    NotifyPropertyChanged("MasterVolumePathVal");
-                }
-            }
-        }
-        private Geometry masterVolumePathVal;
-        public string MasterVolumeStringIndicator
-        {
-            get { return masterVolumeStringIndicator; }
-            set
-            {
-                if (masterVolumeStringIndicator != value)
-                {
-                    masterVolumeStringIndicator = value;
-                    NotifyPropertyChanged("MasterVolumeStringIndicator");
+                    _MusicVolumeValue = value;
+                    MusicVolumeEndAngle = _MusicVolumeValue * 3.6;
+                    MusicVolumeString = _MusicVolumeValue + "%";
                 }
             }
         }
 
 
+        public double MasterVolumeEndAngle
+        {
+            get { return _MasterVolumeEndAngle; }
+            set
+            {
+                if(_MasterVolumeEndAngle != value)
+                {
+                    _MasterVolumeEndAngle = value;
+                    NotifyPropertyChanged("MasterVolumeEndAngle");
+                }
+            }
+        }
 
-        private string masterVolumeStringIndicator;
+        public double EffectVolumeEndAngle
+        {
+            get { return _EffectVolumeEndAngle; }
+            set
+            {
+                if (_EffectVolumeEndAngle != value)
+                {
+                    _EffectVolumeEndAngle = value;
+                    NotifyPropertyChanged("EffectVolumeEndAngle");
+                }
+            }
+        }
+
+        public double MusicVolumeEndAngle
+        {
+            get { return _MusicVolumeEndAngle; }
+            set
+            {
+                if (_MusicVolumeEndAngle != value)
+                {
+                    _MusicVolumeEndAngle = value;
+                    NotifyPropertyChanged("MusicVolumeEndAngle");
+                }
+            }
+        }
+
+
+        public string MasterVolumeString
+        {
+            get { return _MasterVolumeString; }
+            set
+            {
+                if(_MasterVolumeString != value)
+                {
+                    _MasterVolumeString = value;
+                    NotifyPropertyChanged("MasterVolumeString");
+                }
+            }
+        }
+
+        public string EffectVolumeString
+        {
+            get { return _EffectVolumeString; }
+            set
+            {
+                if (_EffectVolumeString != value)
+                {
+                    _EffectVolumeString = value;
+                    NotifyPropertyChanged("EffectVolumeString");
+                }
+            }
+        }
+
+        public string MusicVolumeString
+        {
+            get { return _MusicVolumeString; }
+            set
+            {
+                if (_MusicVolumeString != value)
+                {
+                    _MusicVolumeString = value;
+                    NotifyPropertyChanged("MusicVolumeString");
+                }
+            }
+        }
         #endregion
-
+        
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string property)
         {

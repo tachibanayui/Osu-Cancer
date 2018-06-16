@@ -94,25 +94,7 @@ namespace Osu_Cancer
                 return "Can Parsing Setting From The Resources!";
             }
         }
-        public static Geometry CreateArc(double radius, double angle)
-        {
-            var endPoint = new System.Windows.Point(
-                radius * Math.Sin(angle * Math.PI / 180) + radius,
-                radius * -Math.Cos(angle * Math.PI / 180) + radius);
-
-            var segment = new ArcSegment(
-                endPoint, new System.Windows.Size(radius, radius), 0,
-                angle >= 180, SweepDirection.Clockwise, true);
-
-
-            var figure = new PathFigure { StartPoint = new System.Windows.Point(radius, 0) };
-            figure.Segments.Add(segment);
-
-            var geometry = new PathGeometry();
-            geometry.Figures.Add(figure);
-
-            return geometry;
-        }
+       
     }
 
     enum EncodingType

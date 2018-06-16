@@ -164,6 +164,7 @@ namespace Osu_Cancer
             ChangeAllSettingIconUnlit(SettingIcon1);
             SettingIcon1.Opacity = 1;
             OsuBouncingController(240);
+            grdBackLightContainer.Visibility = Visibility.Visible;
 
             //Add default margin to SelectionTab
             imgPlayTab.Tag = new EndAnimationPos(new Thickness(450, 155, 210, 515), new Thickness(490, 155, 170, 515));
@@ -381,14 +382,7 @@ namespace Osu_Cancer
             }
             catch { }
         }
-        private void VolmumeAnimmation()
-        {
-            for (int i = 0; i < workingResources.MasterVolumeValue; i++)
-            {
-                VolumeString.Text = i + "%";
-                Thread.Sleep(20);
-            }
-        }
+
         private void imgOsuLogo_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (osuCookieBehaviour == OsuCookieBehaviour.ClickToOpenTab && currentSection == OsuSection.MainScreen)
@@ -915,8 +909,7 @@ namespace Osu_Cancer
         }
         private void ChnageBPM()
         {
-            bouncingOsu.Abort();
-            OsuBouncingController(beatmaps[lastSongIndex].BPM);
+            ChangeSongBPMRelatedEffect(beatmaps[lastSongIndex].BPM);
         }
 
         private void SongTrans()
@@ -1034,6 +1027,12 @@ namespace Osu_Cancer
             bouncingOsu.Start(bpm);
         }
 
+        private void ChangeSongBPMRelatedEffect(int bpm)
+        {
+            bouncingOsu.Abort();
+            OsuBouncingController(bpm);
+        }
+
         private void BouncingLogo(object objBpm)
         {
             int bpm = (int)objBpm;
@@ -1042,11 +1041,30 @@ namespace Osu_Cancer
                 Thickness baseElementMargin = new Thickness();
                 Dispatcher.Invoke(() => { baseElementMargin = imgOsuLogo.Margin; });
                 int step = 60000 / (bpm * 2);
+                bool isIncrease = true;
 
                 for (int i = 0; i <= 10; i++)
                 {
                     Dispatcher.Invoke(() => { imgOsuLogo.Margin = new Thickness(baseElementMargin.Left + i, baseElementMargin.Top + i, baseElementMargin.Right + i, baseElementMargin.Bottom + i); });
                     Thread.Sleep(step / 10);
+                    if (isIncrease)
+                    {
+                        if (i == 3)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.3; });
+                        else if (i == 6)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.4; });
+                        else if (i == 10)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.5; });
+                    }
+                    else
+                    {
+                        if (i == 3)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.4; });
+                        else if (i == 6)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0.3; });
+                        else if (i == 10)
+                            Dispatcher.Invoke(() => { BackLight.Opacity = 0; });
+                    }
 
                     if (IsLogoBusy)
                         wait.WaitOne();
@@ -1054,6 +1072,8 @@ namespace Osu_Cancer
 
                 Dispatcher.Invoke(() => { imgOsuLogo.Margin = baseElementMargin; });
                 Thread.Sleep(step);
+                isIncrease = !isIncrease;
+                
             }
         }
     }
