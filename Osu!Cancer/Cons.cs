@@ -111,6 +111,7 @@ namespace Osu_Cancer
             SettingIconImage7 = Icons.SettingPencil;
             SettingIconImage8 = Icons.SettingWorld;
             SettingIconImage9 = Icons.SettingWrench;
+            SongSelectHeader = Icons.SongSelectHeader;
         }
 
         private void GetAccountInformation()
@@ -346,13 +347,16 @@ namespace Osu_Cancer
             get { return backTab; }
             set
             {
-                if(backTab != value)
+                if (backTab != value)
                 {
                     backTab = value;
                     NotifyPropertyChanged("BackTab");
                 }
             }
         }
+        private string _SongSelectHeader;
+        public string SongSelectHeader { get; set; }
+
         public Socket CurrentSocket { get; set; }
         public string NewUpdateandBuildDir { get; set; }
         public string NewUpdateContent { get; set; }
@@ -503,6 +507,7 @@ namespace Osu_Cancer
         private string _EffectVolumeString;
         private string _MusicVolumeString;
 
+        private double _BGMVolume;
         //Below is only for notifying Property
         public int MasterVolumeValue
         {
@@ -515,6 +520,7 @@ namespace Osu_Cancer
                     MasterVolumeEndAngle = _MasterVolumeValue * 3.6;
                     MasterVolumeString = _MasterVolumeValue + "%";
                     NotifyPropertyChanged("MasterVolumeValue");
+                    CalcElementVolume();
                 }               
             }
         }
@@ -530,6 +536,7 @@ namespace Osu_Cancer
                     EffectVolumeEndAngle = _EffectVolumeValue * 3.6;
                     EffectVolumeString = _EffectVolumeValue + "%";
                     NotifyPropertyChanged("EffectVolumeValue");
+                    CalcElementVolume();
                 }
             }
         }
@@ -545,6 +552,7 @@ namespace Osu_Cancer
                     MusicVolumeEndAngle = _MusicVolumeValue * 3.6;
                     MusicVolumeString = _MusicVolumeValue + "%";
                     NotifyPropertyChanged("EffectVolumeValue");
+                    CalcElementVolume();
                 }
             }
         }
@@ -628,8 +636,28 @@ namespace Osu_Cancer
                 }
             }
         }
+
+
+        public double BGMVolume
+        {
+            get { return _BGMVolume; }
+            set
+            {
+                if(_BGMVolume != value)
+                {
+                    _BGMVolume = value;
+                    NotifyPropertyChanged(nameof(BGMVolume));
+                }
+            }
+        }
+
+
+        private void CalcElementVolume()
+        {
+            BGMVolume = (double)(MasterVolumeValue * MusicVolumeValue) / 10000;
+        }
         #endregion
-        
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string property)
         {
@@ -666,6 +694,7 @@ namespace Osu_Cancer
             SoloTab =  BaseDir + "SoloTab.png";
             MultiTab = BaseDir + "MultiTab.png";
             BackTab = BaseDir + "BackTab.png";
+            SongSelectHeader = BaseDir + "OsuSelectHeader.png";
         }
         public string Logo { get; set; }
         public string PlayTab { get; set; }
@@ -693,6 +722,7 @@ namespace Osu_Cancer
         public string SettingSound { get; set; }
         public string SettingWorld { get; set; }
         public string SettingWrench { get; set; }
+        public string SongSelectHeader { get; set; }
     }
 
     public enum OsuSection

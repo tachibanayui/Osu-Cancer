@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Osu_Cancer"
         xmlns:ed="http://schemas.microsoft.com/expression/2010/drawing"
+        xmlns:cc="clr-namespace:Osu_Cancer.CustomControls"
         xmlns:wrokingReource="local:MainWindow"
         mc:Ignorable="d"
         AllowsTransparency="True"
@@ -309,10 +310,12 @@
         <CommandBinding Command="{x:Static local:MainWindow.escPressed}" Executed="CommandBinding_Executed_1"/>
     </Window.CommandBindings>
     <Grid>
+        <MediaElement Visibility="Collapsed" x:Name="BGMPlayer" LoadedBehavior="Manual" MediaOpened="SongChange" Volume="{Binding BGMVolume}"/>
+        <TextBlock Text="{Binding BGMVolume}" IsHitTestVisible="False" Foreground="White" VerticalAlignment="Center" Panel.ZIndex="1" FontSize="100"/>
+        <!--Osu!MainScreen-->
         <Grid MouseMove="DynamicBGAction" MouseWheel="Grid_MouseWheel" Margin="0,6,0,-6">
 
 
-            <MediaElement Visibility="Collapsed" x:Name="BGMPlayer" LoadedBehavior="Manual" MediaOpened="SongChange" Volume="{Binding BGMVolume}"/>
             <Grid x:Name="BlackCurtain" Opacity="0">
                 <Border  Background="Black"></Border>
                 <TextBlock VerticalAlignment="Center" Margin="100" Text="Welcome" FontSize="100" TextAlignment="Center" Foreground="White"></TextBlock>
@@ -422,46 +425,7 @@
                     </ProgressBar>
                 </Grid>
             </Grid>
-            <!-- UserAccount-->
-            <Grid x:Name="AccountInfo" Margin="10,10,961,650" Visibility="Collapsed" MouseEnter="AccPnlGlowingOverlay" MouseLeave="AccPnlUngrowing">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="114*"/>
-                    <ColumnDefinition Width="281*"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="1" Margin="65,50,0,0" Text="{Binding Rank}" FontSize="36" Foreground="White" TextAlignment="Right" Opacity="0.5"></TextBlock>
-                <Image Source="F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\UserAvatar.png" Stretch="Fill" Margin="5"></Image>
-                <StackPanel Grid.Column="1">
-                    <StackPanel.Resources>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="FontSize" Value="18"/>
-                            <Setter Property="Foreground" Value="White"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <TextBlock x:Name="Username" Text="{Binding Username}" FontSize="24"/>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Performance: "/>
-                        <TextBlock Text="{Binding Pp}"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Accuracy: "/>
-                        <TextBlock Text="{Binding Accuracy}"/>
-                    </StackPanel>
-                    <Grid>
-                        <TextBlock Text="{Binding Lv}"/>
-                        <ProgressBar Margin="50,10,0,0" Width="200">
-                            <ProgressBar.Template>
-                                <ControlTemplate>
-                                    <Border CornerRadius="10,10,10,10" BorderBrush="White" BorderThickness="0.51">
-                                        <Rectangle Fill="Orange" RadiusX="12" RadiusY="10" Width="{Binding ProgLv}" HorizontalAlignment="Left"></Rectangle>
-                                    </Border>
-                                </ControlTemplate>
-                            </ProgressBar.Template>
-                        </ProgressBar>
-                    </Grid>
-                </StackPanel>
-                <Rectangle x:Name="AccountPanelOverlay" Fill="White" Grid.ColumnSpan="2" Opacity="0" ></Rectangle>
-            </Grid>
+            
             <!--Setting panel-->
             <Grid x:Name="SettingPanel" Width="500" HorizontalAlignment="Left" Opacity="0" Visibility="Collapsed">
                 <Grid.RowDefinitions>
@@ -706,25 +670,30 @@
                             </GroupBox>
                         </Grid>
                         <Grid Height="350">
+                            <Grid.Resources>
+                                <Style TargetType="Slider">
+                                    <EventSetter Event="ValueChanged" Handler="Slider_ValueChanged"/>
+                                </Style>
+                            </Grid.Resources>
                             <TextBlock Text="AUDIO" Style="{StaticResource SettingHeader}"/>
                             <GroupBox Header="VOLUME" Margin="0,50,0,130">
                                 <ListBox Style="{StaticResource CustomListBoxSetting}">
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Master: " Style="{StaticResource ContentSettingText}"/>
-                                            <Slider Width="300" Style="{StaticResource SettingSlider }" Maximum="100" Value="{Binding MasterVolumeValue}"/>
+                                            <Slider Width="300" Style="{StaticResource SettingSlider }" Maximum="100" Value="{Binding MasterVolumeValue}" ValueChanged="Slider_ValueChanged"/>
                                         </StackPanel>
                                     </ListBoxItem>
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Music: " Style="{StaticResource ContentSettingText}"/>
-                                            <Slider Width="305" Style="{StaticResource SettingSlider}" Maximum="100" Value="{Binding EffectVolumeValue}"/>
+                                            <Slider Width="305" Style="{StaticResource SettingSlider}" Maximum="100" Value="{Binding MusicVolumeValue}" ValueChanged="Slider_ValueChanged"/>
                                         </StackPanel>
                                     </ListBoxItem>
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Effect: " Style="{StaticResource ContentSettingText}"/>
-                                            <Slider Width="310" Style="{StaticResource SettingSlider}" Maximum="100" Value="{Binding MusicVolumeValue}"/>
+                                            <Slider Width="310" Style="{StaticResource SettingSlider}" Maximum="100" Value="{Binding EffectVolumeValue}" ValueChanged="Slider_ValueChanged"/>
                                         </StackPanel>
                                     </ListBoxItem>
                                     <ListBoxItem Style="{StaticResource CustomListaBoxItem}">
@@ -935,6 +904,67 @@
                 </Border>
             </Grid>
         </Grid>
+        <!--Map Select-->
+        <Grid Visibility="Visible">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="149*"/>
+                <RowDefinition Height="617*"/>
+                <RowDefinition Height="90*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Image Source="F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\Icon\OsuSelectHeader.png" Stretch="Fill" Grid.ColumnSpan="2"/>
+            <ScrollViewer Grid.Column="1" Grid.Row="1" VerticalScrollBarVisibility="Hidden">
+                <StackPanel>
+                    
+                </StackPanel>
+            </ScrollViewer>
+            
+        </Grid>
+        <!-- UserAccount-->
+        <Grid x:Name="AccountInfo" Margin="10,10,961,650" Visibility="Collapsed" MouseEnter="AccPnlGlowingOverlay" MouseLeave="AccPnlUngrowing">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="114*"/>
+                <ColumnDefinition Width="281*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="1" Margin="65,50,0,0" Text="{Binding Rank}" FontSize="36" Foreground="White" TextAlignment="Right" Opacity="0.5"></TextBlock>
+            <Image Source="F:\All Project\Osu!Cancer\Osu!Cancer\bin\Debug\Resources\UserAvatar.png" Stretch="Fill" Margin="5"></Image>
+            <StackPanel Grid.Column="1">
+                <StackPanel.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="FontSize" Value="18"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </Style>
+                </StackPanel.Resources>
+                <TextBlock x:Name="Username" Text="{Binding Username}" FontSize="24"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Performance: "/>
+                    <TextBlock Text="{Binding Pp}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Accuracy: "/>
+                    <TextBlock Text="{Binding Accuracy}"/>
+                </StackPanel>
+                <Grid>
+                    <TextBlock Text="{Binding Lv}"/>
+                    <ProgressBar Margin="50,10,0,0" Width="200">
+                        <ProgressBar.Template>
+                            <ControlTemplate>
+                                <Border CornerRadius="10,10,10,10" BorderBrush="White" BorderThickness="0.51">
+                                    <Rectangle Fill="Orange" RadiusX="12" RadiusY="10" Width="{Binding ProgLv}" HorizontalAlignment="Left"></Rectangle>
+                                </Border>
+                            </ControlTemplate>
+                        </ProgressBar.Template>
+                    </ProgressBar>
+                </Grid>
+            </StackPanel>
+            <Rectangle x:Name="AccountPanelOverlay" Fill="White" Grid.ColumnSpan="2" Opacity="0" ></Rectangle>
+        </Grid>
+
         <Grid x:Name="windowCurtain" Opacity="0" Background="Black" Visibility="Collapsed">
             <MediaElement x:Name="media" Volume="100" LoadedBehavior="Manual"/>
         </Grid>

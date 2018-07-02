@@ -330,27 +330,11 @@ namespace Osu_Cancer
         }
         private void Grid_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (currentSection == OsuSection.PreLoad || workingResources.IsSettingPanelOpen)
+
+            if ( workingResources.IsSettingPanelOpen || currentSection == OsuSection.PreLoad || !FadingVolumeGauge())
                 return;
 
 
-            if (isAwaitVolumeGaugeRunning)
-            {
-                _volumeGauge.Abort();
-                isAwaitVolumeGaugeRunning = false;
-            }
-
-            if (VolumeMixer.Visibility == Visibility.Collapsed)
-            {
-                VolumeMixer.Visibility = Visibility.Visible;
-                DoubleAnimation fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.1), FillBehavior.Stop);
-                fadeIn.Completed += (object senderr, EventArgs ee) => { VolumeMixer.Opacity = 1; };
-                VolumeMixer.BeginAnimation(OpacityProperty, fadeIn);
-                CountDownFadeOutVolume();
-                _volumeGauge.Start();
-                isAwaitVolumeGaugeRunning = true;
-                return;
-            }
 
             if (e.Delta > 0)
             {
@@ -375,7 +359,6 @@ namespace Osu_Cancer
             _volumeGauge.Start();
             isAwaitVolumeGaugeRunning = true;
         }
-
         private bool IsEffectMusicVolumeMouseWheel()
         {
             if (EffectVolumeGauge.IsMouseOver || MusicVolumeGauge.IsMouseOver)
@@ -383,7 +366,6 @@ namespace Osu_Cancer
             else
                 return false;
         }
-
         private void CountDownFadeOutVolume()
         {
             try
@@ -764,7 +746,7 @@ namespace Osu_Cancer
         }
         private void OsuBouncingController(int bpm)
         {
-            bouncingOsu = new Thread(BouncingLogo);
+            bouncingOsu = new Thread(BouncingLogo) { IsBackground = true };
             bouncingOsu.Start(bpm);
         }
 
@@ -1117,6 +1099,39 @@ namespace Osu_Cancer
             doubleAnimation.Completed += (object sendeer, EventArgs ee) => { Environment.Exit(0); };
             media.Play();
             windowCurtain.BeginAnimation(OpacityProperty, doubleAnimation);
+        }
+
+        private bool FadingVolumeGauge()
+        {
+            if (isAwaitVolumeGaugeRunning)
+            {
+                _volumeGauge.Abort();
+                isAwaitVolumeGaugeRunning = false;
+            }
+
+            if (VolumeMixer.Visibility == Visibility.Collapsed)
+            {
+                VolumeMixer.Visibility = Visibility.Visible;
+                DoubleAnimation fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.1), FillBehavior.Stop);
+                fadeIn.Completed += (object senderr, EventArgs ee) => { VolumeMixer.Opacity = 1; };
+                VolumeMixer.BeginAnimation(OpacityProperty, fadeIn);
+                CountDownFadeOutVolume();
+                _volumeGauge.Start();
+                isAwaitVolumeGaugeRunning = true;
+                return false;
+            }
+        
+            return true;
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            //if (!FadingVolumeGauge() || currentSection == OsuSection.PreLoad)
+            //    return;
+
+            //CountDownFadeOutVolume();
+            //_volumeGauge.Start();
+            //isAwaitVolumeGaugeRunning = true;
         }
     }
 }
